@@ -100,7 +100,7 @@ test('get with null', async () => {
   assert(set.notCalled)
 })
 
-test('throws with number', async () => {
+test('throws with unexpected args', async () => {
   const values = { x: '123', y: '456' }
 
   get.yields({ storage: values })
@@ -108,12 +108,6 @@ test('throws with number', async () => {
   await expect(storage.local.get(2)).rejects.toThrow(
     new TypeError('Unexpected argument type: number'),
   )
-})
-
-test('throws with boolean', async () => {
-  const values = { x: '123', y: '456' }
-
-  get.yields({ storage: values })
 
   await expect(storage.local.get(true)).rejects.toThrow(
     new TypeError('Unexpected argument type: boolean'),

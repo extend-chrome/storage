@@ -107,7 +107,7 @@ test('mixed set operations', async () => {
   )
 })
 
-test('throws with unexpected argument type', async () => {
+test('rejects with unexpected argument type', async () => {
   get.yields({ storage: { x: '123', y: '456' } })
   set.yields()
 
@@ -122,28 +122,72 @@ test('throws with unexpected argument type', async () => {
   )
 })
 
-test('throws with unexpected function return type', async () => {
+test('rejects if function returns boolean', async () => {
+  expect.assertions(1)
+
+  get.yields({ storage: { x: '123', y: '456' } })
+  set.yields()
+
+  const boolean = () => true
+
+  const expectError = (error) => {
+    expect(error.message).toBe(
+      'Setter must return an object or undefined.',
+    )
+  }
+
+  return storage.local.set(boolean).catch(expectError)
+})
+
+test('rejects if function returns function', async () => {
+  expect.assertions(1)
+
+  get.yields({ storage: { x: '123', y: '456' } })
+  set.yields()
+
+  const fn = () => () => {}
+
+  const expectError = (error) => {
+    expect(error.message).toBe(
+      'Setter must return an object or undefined.',
+    )
+  }
+
+  return storage.local.set(fn).catch(expectError)
+})
+
+test('rejects if function returns string', async () => {
+  expect.assertions(1)
+
+  get.yields({ storage: { x: '123', y: '456' } })
+  set.yields()
+
+  const string = () => 'string'
+
+  const expectError = (error) => {
+    expect(error.message).toBe(
+      'Setter must return an object or undefined.',
+    )
+  }
+
+  return storage.local.set(string).catch(expectError)
+})
+
+test('rejects if function returns number', async () => {
+  expect.assertions(1)
+
   get.yields({ storage: { x: '123', y: '456' } })
   set.yields()
 
   const number = () => 2
-  const string = () => 'a'
-  const boolean = () => true
-  const fn = () => () => {}
 
-  await expect(storage.local.set(number)).rejects.toThrow(
-    new TypeError('Setter must return an object or undefined.'),
-  )
+  const expectError = (error) => {
+    expect(error.message).toBe(
+      'Setter must return an object or undefined.',
+    )
+  }
 
-  await expect(storage.local.set(string)).rejects.toThrow(
-    new TypeError('Setter must return an object or undefined.'),
-  )
-
-  await expect(storage.local.set(boolean)).rejects.toThrow(
-    new TypeError('Setter must return an object or undefined.'),
-  )
-
-  await expect(storage.local.set(fn)).rejects.toThrow(
-    new TypeError('Setter must return an object or undefined.'),
-  )
+  return storage.local.set(number).catch(expectError)
 })
+
+test.todo('one reject does not disrupt other set ops')

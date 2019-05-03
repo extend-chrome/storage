@@ -19,10 +19,55 @@ function setupStorage(area) {
   const storage = chromep.storage[area]
   const query = { storage: {} }
 
+  /* ---------------- storage.get --------------- */
+  const coreGet = () =>
+    storage.get(query).then(({ storage }) => storage)
+
+  const get = async (getter) => {
+    if (getter === null || getter === undefined) {
+      return coreGet()
+    } else if (Array.isArray(getter)) {
+      const values = await coreGet()
+
+      return getter.reduce((r, key) => {
+        const value = values[key]
+
+        if (value) {
+          return { ...r, [key]: value }
+        } else {
+          return r
+        }
+      }, {})
+    }
+
+    switch (typeof getter) {
+      case 'function': {
+        return getter(await coreGet())
+      }
+      case 'string': {
+        const values = await coreGet()
+
+        return values[getter]
+      }
+      case 'object': {
+        const values = await coreGet()
+
+        return Object.keys(getter).reduce((r, key) => {
+          return { ...r, [key]: values[key] || getter[key] }
+        }, {})
+      }
+      default:
+        throw new TypeError(
+          'Unexpected argument type: ' + typeof getter,
+        )
+    }
+  }
+
   /* ---------------- storage.set --------------- */
   let shouldUpdateStorage = true
   let composedSetter = (x) => x
   let resolves = []
+  let rejects = []
 
   const set = (arg) =>
     new Promise((resolve, reject) => {
@@ -32,60 +77,66 @@ function setupStorage(area) {
         setter = (prev) => {
           const result = arg(prev)
 
-          // only undefined and objects are valid here
           if (
-            result !== undefined &&
-            (typeof result !== 'object' || Array.isArray(result))
+            (result === undefined ||
+              typeof result === 'object') &&
+            !Array.isArray(result)
           ) {
-            reject(
-              new TypeError(
-                'Setter must return an object or undefined.',
-              ),
+            return {
+              ...prev,
+              ...result,
+            }
+          } else {
+            // TODO: Improve error message, include type
+            throw new TypeError(
+              'Setter must return an object or undefined.',
             )
           }
-
-          return {
-            ...prev,
-            ...result,
-          }
         }
-      } else if (typeof arg !== 'object' || Array.isArray(arg)) {
-        throw new TypeError(
-          'Setter must be an object or a function.',
-        )
-      } else {
+      } else if (
+        typeof arg === 'object' &&
+        !Array.isArray(arg)
+      ) {
         setter = (prev) => ({
           ...prev,
           ...arg,
         })
+      } else {
+        // TODO: Make error message more specific
+        throw new TypeError(
+          'Setter must be an object or a function.',
+        )
       }
 
       const composeFn = composedSetter
       composedSetter = (next) => setter(composeFn(next))
 
-      resolves.push(() => resolve())
+      resolves.push(resolve)
+      rejects.push(reject)
 
       if (shouldUpdateStorage) {
         // Update storage starting with current values
-        storage
-          .get(query)
-          .then(({ storage: prev }) => {
+        coreGet()
+          .then((prev) => {
             // Compose new values
             const next = composedSetter(prev)
-
-            // Clean up
-            shouldUpdateStorage = true
-            composedSetter = (s) => s
 
             // Execute set
             return storage.set({ storage: next })
           })
-          .catch((error) => {
-            reject(error)
-          })
           .then(() => {
             resolves.forEach((r) => r())
+          })
+          .catch((error) => {
+            rejects.forEach((r) => r(error))
+          })
+          .finally(() => {
+            // Clean up after a set operation
+            shouldUpdateStorage = true
+            composedSetter = (s) => s
+
             resolves = []
+            rejects = []
           })
 
         shouldUpdateStorage = false
@@ -94,48 +145,26 @@ function setupStorage(area) {
 
   return {
     set,
+    get,
 
-    async get(getter) {
-      const coreGet = () =>
-        storage.get(query).then(({ storage }) => storage)
+    async remove(arg) {
+      const keys = [].concat(arg)
+      const values = await coreGet()
 
-      if (getter === null || getter === undefined) {
-        return coreGet()
-      } else if (Array.isArray(getter)) {
-        const values = await coreGet()
-
-        return getter.reduce((r, key) => {
-          const value = values[key]
-
-          if (value) {
-            return { ...r, [key]: value }
-          } else {
-            return r
-          }
-        }, {})
-      }
-
-      switch (typeof getter) {
-        case 'function': {
-          return getter(await coreGet())
-        }
-        case 'string': {
-          const values = await coreGet()
-
-          return values[getter]
-        }
-        case 'object': {
-          const values = await coreGet()
-
-          return Object.keys(getter).reduce((r, key) => {
-            return { ...r, [key]: values[key] || getter[key] }
-          }, {})
-        }
-        default:
+      keys.forEach((key) => {
+        if (typeof key !== 'string')
           throw new TypeError(
-            'Unexpected argument type: ' + typeof getter,
+            'Unexpected argument type: ' + typeof key,
           )
-      }
+
+        delete values[key]
+      })
+
+      return set(values)
+    },
+
+    clear() {
+      return storage.remove('storage')
     },
 
     get change$() {
