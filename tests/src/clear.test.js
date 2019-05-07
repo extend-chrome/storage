@@ -1,24 +1,23 @@
 import assert from 'power-assert'
 import { storage } from '../../src'
 
-const { get, set, remove } = chrome.storage.local
+const { get, set, remove, clear } = chrome.storage.local
+const values = { x: '123', y: '456' }
 
 beforeEach(() => {
   chrome.reset()
+  get.yields(values)
+  set.yields()
+  remove.yields()
+  clear.yields()
 })
 
 test('clear', async () => {
-  get.yields({ storage: { x: '123', y: '456' } })
-  set.yields()
-  remove.yields()
+  await storage.local.clear()
 
-  const result = await storage.local.clear()
-
-  expect(result).toBeUndefined()
-
-  assert(get.notCalled)
   assert(set.notCalled)
+  assert(remove.notCalled)
 
-  assert(remove.calledOnce)
-  assert(remove.withArgs('storage').calledOnce)
+  assert(clear.calledOnce)
+  assert(get.calledOnceWith(null))
 })

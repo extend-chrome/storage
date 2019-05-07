@@ -1,138 +1,146 @@
 import assert from 'power-assert'
 import { storage } from '../../src/index'
 
-const { get, set } = chrome.storage.local
+const { get, set, remove, clear } = chrome.storage.local
+const values = { x: '123', y: '456' }
 
 beforeEach(() => {
   chrome.reset()
+  get.yields(values)
+  set.yields()
+  remove.yields()
+  clear.yields()
 })
 
 test('set with object', async () => {
-  get.yields({ storage: { x: '123', y: '456' } })
-  set.yields()
+  const expected = { x: '123', y: '456', z: '789' }
 
   const result = await storage.local.set({ z: '789' })
 
-  expect(result).toBeUndefined()
+  assert(remove.notCalled)
+  assert(clear.notCalled)
 
   assert(get.calledOnce)
-  assert(get.withArgs({ storage: {} }).calledOnce)
+  assert(get.withArgs(null).calledOnce)
 
   assert(set.calledOnce)
+  assert(set.withArgs(expected).calledOnce)
+
+  expect(result).toEqual(expected)
 })
 
 test('set with function', async () => {
-  const values = { x: '123', y: '456' }
-  get.yields({ storage: values })
-  set.yields()
-
   const spy = jest.fn(({ x }) => {
     const newX = x + '4'
     return { x: newX }
   })
 
+  const expected = { x: '1234', y: '456' }
   const result = await storage.local.set(spy)
 
-  expect(result).toBeUndefined()
+  assert(remove.notCalled)
+  assert(clear.notCalled)
+
+  assert(get.calledOnce)
+  assert(get.withArgs(null).calledOnce)
+
+  assert(set.calledOnce)
+  assert(set.withArgs(expected).calledOnce)
 
   expect(spy).toBeCalled()
   expect(spy).toBeCalledTimes(1)
   expect(spy).toBeCalledWith(values)
 
-  assert(get.calledOnce)
-  assert(get.withArgs({ storage: {} }).calledOnce)
-
-  assert(set.calledOnce)
-  assert(
-    set.withArgs({ storage: { x: '1234', y: '456' } })
-      .calledOnce,
-  )
+  expect(result).toEqual(expected)
 })
 
 test('repeated object set operations', async () => {
-  get.yields({ storage: { x: '123', y: '456' } })
-  set.yields()
+  const expected = { x: '123', y: '456', z: '789', a: '000' }
 
-  await Promise.all([
+  const results = await Promise.all([
     storage.local.set({ z: '789' }),
     storage.local.set({ a: '000' }),
   ])
 
+  assert(remove.notCalled)
+  assert(clear.notCalled)
+
   assert(get.calledOnce)
-  assert(get.withArgs({ storage: {} }).calledOnce)
+  assert(get.withArgs(null).calledOnce)
 
   assert(set.calledOnce)
-  assert(
-    set.withArgs({
-      storage: { x: '123', y: '456', z: '789', a: '000' },
-    }).calledOnce,
-  )
+  assert(set.withArgs(expected).calledOnce)
+
+  results.forEach((result) => {
+    expect(result).toEqual(expected)
+  })
 })
 
 test('repeated function set operations', async () => {
-  get.yields({ storage: { x: '123', y: '456' } })
-  set.yields()
+  const expected = { x: '789', y: '456', a: '7890', b: '456' }
 
-  await Promise.all([
+  const results = await Promise.all([
     storage.local.set(() => ({ x: '789' })),
     storage.local.set(({ x }) => ({ a: x + '0' })),
     storage.local.set(({ y }) => ({ b: y })),
   ])
 
   assert(get.calledOnce)
-  assert(get.withArgs({ storage: {} }).calledOnce)
+  assert(get.withArgs(null).calledOnce)
 
-  const final = { x: '789', y: '456', a: '7890', b: '456' }
   assert(set.calledOnce)
-  assert(set.withArgs({ storage: final }).calledOnce)
+  assert(set.withArgs(expected).calledOnce)
+
+  results.forEach((result) => {
+    expect(result).toEqual(expected)
+  })
 })
 
 test('mixed set operations', async () => {
-  get.yields({ storage: { x: '123', y: '456' } })
-  set.yields()
+  const expected = { x: '123', y: '456', z: '7890' }
 
-  await Promise.all([
+  const results = await Promise.all([
     storage.local.set({ z: '789' }),
     storage.local.set(({ z }) => ({ z: z + 0 })),
   ])
 
   assert(get.calledOnce)
-  assert(get.withArgs({ storage: {} }).calledOnce)
+  assert(get.withArgs(null).calledOnce)
 
   assert(set.calledOnce)
-  assert(
-    set.withArgs({
-      storage: { x: '123', y: '456', z: '7890' },
-    }).calledOnce,
+  assert(set.withArgs(expected).calledOnce)
+
+  results.forEach((result) => {
+    expect(result).toEqual(expected)
+  })
+})
+
+test('throws with unexpected args', async () => {
+  const withNum = () => storage.local.set(2)
+  const withBool = () => storage.local.set(true)
+  const withMixedArray = () => storage.local.set(['a', true])
+
+  expect(withNum).toThrow(
+    new TypeError('Unexpected argument type: number'),
+  )
+
+  expect(withBool).toThrow(
+    new TypeError('Unexpected argument type: boolean'),
+  )
+
+  expect(withMixedArray).toThrow(
+    new TypeError('Unexpected argument type: Array'),
   )
 })
 
-test('rejects with unexpected argument type', async () => {
-  get.yields({ storage: { x: '123', y: '456' } })
-  set.yields()
-
-  await expect(storage.local.set(2)).rejects.toThrow(
-    new TypeError('Setter must be an object or a function.'),
-  )
-  await expect(storage.local.set('b')).rejects.toThrow(
-    new TypeError('Setter must be an object or a function.'),
-  )
-  await expect(storage.local.set(true)).rejects.toThrow(
-    new TypeError('Setter must be an object or a function.'),
-  )
-})
-
-test('rejects if function returns boolean', async () => {
+test('rejects if function returns boolean', () => {
   expect.assertions(1)
-
-  get.yields({ storage: { x: '123', y: '456' } })
-  set.yields()
 
   const boolean = () => true
 
   const expectError = (error) => {
     expect(error.message).toBe(
-      'Setter must return an object or undefined.',
+      'Unexpected setter return value: boolean',
     )
   }
 
@@ -142,14 +150,11 @@ test('rejects if function returns boolean', async () => {
 test('rejects if function returns function', async () => {
   expect.assertions(1)
 
-  get.yields({ storage: { x: '123', y: '456' } })
-  set.yields()
-
   const fn = () => () => {}
 
   const expectError = (error) => {
     expect(error.message).toBe(
-      'Setter must return an object or undefined.',
+      'Unexpected setter return value: function',
     )
   }
 
@@ -159,14 +164,11 @@ test('rejects if function returns function', async () => {
 test('rejects if function returns string', async () => {
   expect.assertions(1)
 
-  get.yields({ storage: { x: '123', y: '456' } })
-  set.yields()
-
   const string = () => 'string'
 
   const expectError = (error) => {
     expect(error.message).toBe(
-      'Setter must return an object or undefined.',
+      'Unexpected setter return value: string',
     )
   }
 
@@ -176,14 +178,11 @@ test('rejects if function returns string', async () => {
 test('rejects if function returns number', async () => {
   expect.assertions(1)
 
-  get.yields({ storage: { x: '123', y: '456' } })
-  set.yields()
-
   const number = () => 2
 
   const expectError = (error) => {
     expect(error.message).toBe(
-      'Setter must return an object or undefined.',
+      'Unexpected setter return value: number',
     )
   }
 

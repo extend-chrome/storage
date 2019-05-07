@@ -1,57 +1,56 @@
 import assert from 'power-assert'
 import { storage } from '../../src'
 
-const { get, set } = chrome.storage.local
+const { get, set, remove, clear } = chrome.storage.local
+const values = { x: '123', y: '456' }
 
 beforeEach(() => {
   chrome.reset()
+  get.yields(values)
+  set.yields()
+  remove.yields()
+  clear.yields()
 })
 
 test('remove with string', async () => {
-  get.yields({ storage: { x: '123', y: '456' } })
-  set.yields()
+  const arg = 'x'
+  const query = [arg]
 
-  const result = await storage.local.remove('x')
+  await storage.local.remove(arg)
 
-  expect(result).toBeUndefined()
+  assert(set.notCalled)
+  assert(clear.notCalled)
 
-  assert(get.calledTwice)
-  assert(get.withArgs({ storage: {} }).calledTwice)
-
-  assert(set.calledOnce)
-  assert(set.withArgs({ storage: { y: '456' } }))
+  assert(remove.calledOnceWith(query))
+  assert(get.calledOnce)
 })
 
 test('remove with array', async () => {
-  get.yields({ storage: { x: '123', y: '456', z: '789' } })
-  set.yields()
+  const arg = ['x', 'z']
 
-  const result = await storage.local.remove(['x', 'z'])
+  await storage.local.remove(arg)
 
-  expect(result).toBeUndefined()
+  assert(set.notCalled)
+  assert(clear.notCalled)
 
-  assert(get.calledTwice)
-  assert(get.withArgs({ storage: {} }).calledTwice)
-
-  assert(set.calledOnce)
-  assert(set.withArgs({ storage: { y: '456' } }).calledOnce)
+  assert(remove.calledOnceWith(arg))
+  assert(get.calledOnce)
 })
 
 test('throws with unexpected args', async () => {
-  get.yields({ storage: { x: '123', y: '456', z: '789' } })
-  set.yields()
+  const withNum = () => storage.local.remove(2)
+  const withBool = () => storage.local.remove(true)
+  const withMixedArray = () => storage.local.remove(['a', true])
 
-  await expect(storage.local.remove(2)).rejects.toThrow(
+  expect(withNum).toThrow(
     new TypeError('Unexpected argument type: number'),
   )
 
-  await expect(storage.local.remove(true)).rejects.toThrow(
+  expect(withBool).toThrow(
     new TypeError('Unexpected argument type: boolean'),
   )
 
-  await expect(
-    storage.local.remove(['a', true]),
-  ).rejects.toThrow(
+  expect(withMixedArray).toThrow(
     new TypeError('Unexpected argument type: boolean'),
   )
 })
