@@ -2,20 +2,14 @@
   "name": "@bumble/storage",
   "version": "0.1.0",
   "description": "This is a wrapper for the Chrome Extension Storage API that adds promises and functional set transactions similar to the React `this.setState` API. Functional set transactions make it easy to use the Chrome Storage API to share and manage state between different contexts in a Chrome Extension.",
+  "repository": "bumble-org/storage",
+  "license": "MIT",
+  "author": "<jacksteamdev@gmail.com>",
+  "files": [
+    "/build"
+  ],
   "main": "build/bundle-cjs.js",
   "module": "build/bundle-esm.js",
-  "author": "<jacksteamdev@gmail.com>",
-  "license": "MIT",
-  "devDependencies": {
-    "@babel/preset-env": "^7.3.4",
-    "eslint": "^5.14.1",
-    "eslint-plugin-jsdoc": "^4.1.1",
-    "jest": "^24.1.0",
-    "npm-run-all": "^4.1.5",
-    "power-assert": "^1.6.1",
-    "rollup": "^0.68.0",
-    "sinon-chrome": "^2.3.2"
-  },
   "scripts": {
     "build": "rollup -c",
     "start": "rollup -c -w",
@@ -28,13 +22,20 @@
       "./tests/jest.setup.js"
     ]
   },
-  "files": [
-    "/build"
-  ],
   "dependencies": {
     "@bumble/chrome-rxjs": "^0.5.0",
     "@bumble/timeout": "^0.1.0",
     "chrome-promise": "^3.0.4",
     "rxjs": "^6.5.1"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.3.4",
+    "eslint": "^5.14.1",
+    "eslint-plugin-jsdoc": "^4.1.1",
+    "jest": "^24.1.0",
+    "npm-run-all": "^4.1.5",
+    "power-assert": "^1.6.1",
+    "rollup": "^0.68.0",
+    "sinon-chrome": "^2.3.2"
   }
 }
