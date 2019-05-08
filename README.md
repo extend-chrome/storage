@@ -1,8 +1,8 @@
 # @bumble/storage
 
-Manage Chrome Extension state easily with `@bumble/storage`.
+Manage Chrome Extension storage easily with `@bumble/storage`.
 
-This is a wrapper for the `chrome.storage` API that adds functional set transactions similar to the React `this.setState` API. Functional set transactions make it easy to use the Chrome Storage API to share and manage state between different contexts in a Chrome Extension.
+This is a wrapper for the Chrome Extension Storage API that adds promises and functional set transactions similar to the React `this.setState` API. Functional set transactions make it easy to use the Chrome Storage API to share and manage state between different contexts in a Chrome Extension.
 
 > This library is in beta mode. API changes may occur before version 1.0.
 

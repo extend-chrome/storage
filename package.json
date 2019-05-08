@@ -1,7 +1,7 @@
 {
   "name": "@bumble/storage",
   "version": "0.1.0",
-  "description": "TBA",
+  "description": "This is a wrapper for the Chrome Extension Storage API that adds promises and functional set transactions similar to the React `this.setState` API. Functional set transactions make it easy to use the Chrome Storage API to share and manage state between different contexts in a Chrome Extension.",
   "main": "build/bundle-cjs.js",
   "module": "build/bundle-esm.js",
   "author": "<jacksteamdev@gmail.com>",
