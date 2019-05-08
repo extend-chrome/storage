@@ -13,42 +13,38 @@ beforeEach(() => {
 })
 
 test('get with string', async () => {
-  const result = await storage.local.get('x')
+  await storage.local.get('x')
 
   assert(set.notCalled)
   assert(remove.notCalled)
   assert(clear.notCalled)
 
   assert(get.calledOnce)
-  assert(get.withArgs(null).calledOnce)
-
-  expect(result).toEqual('123')
+  assert(get.withArgs('x').calledOnce)
 })
 
 test('get with object', async () => {
-  const result = await storage.local.get({ x: 'abc', z: '789' })
+  const getter = { x: 'abc', z: '789' }
+  await storage.local.get(getter)
 
   assert(set.notCalled)
   assert(remove.notCalled)
   assert(clear.notCalled)
 
   assert(get.calledOnce)
-  assert(get.withArgs(null).calledOnce)
-
-  expect(result).toEqual({ x: '123', z: '789' })
+  assert(get.withArgs(getter).calledOnce)
 })
 
 test('get with array', async () => {
-  const result = await storage.local.get(['x', 'z'])
+  const getter = ['x', 'z']
+  await storage.local.get(getter)
 
   assert(set.notCalled)
   assert(remove.notCalled)
   assert(clear.notCalled)
 
   assert(get.calledOnce)
-  assert(get.withArgs(null).calledOnce)
-
-  expect(result).toEqual({ x: '123' })
+  assert(get.withArgs(getter).calledOnce)
 })
 
 test('get with function', async () => {
@@ -113,6 +109,6 @@ test('throws with unexpected args', async () => {
   )
 
   expect(withMixedArray).toThrow(
-    new TypeError('Unexpected argument type: boolean'),
+    new TypeError('Unexpected argument type: Array<boolean>'),
   )
 })
