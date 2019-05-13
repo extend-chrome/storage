@@ -26,6 +26,7 @@ function setupStorage(area) {
   /* ---------------- storage.get --------------- */
   const coreGet = (x) => storage.get(x || null)
 
+  // TODO: handle async calls to get while set is running
   const get = (getter) => {
     const errorMessage = invalidGetter(getter)
 
@@ -92,26 +93,27 @@ function setupStorage(area) {
       const composeFn = getNextValue
       getNextValue = (prev) => setter(composeFn(prev))
 
-      if (promise) {
-        promise.then(resolve).catch(reject)
-      } else {
+      if (!promise) {
         // Update storage starting with current values
         promise = coreGet().then((prev) => {
-          // Compose new values
-          const next = getNextValue(prev)
-          // Execute set
-          return storage.set(next).then(() => next)
-        })
+          try {
+            // Compose new values
+            const next = getNextValue(prev)
 
-        promise
-          .then(resolve)
-          .catch(reject)
-          .finally(() => {
+            // Execute set
+            return storage.set(next).then(() => next)
+          } catch (error) {
+            throw error
+          } finally {
             // Clean up after a set operation
             getNextValue = (s) => s
             promise = null
-          })
+          }
+        })
       }
+
+      // All calls to set should call resolve or reject
+      promise.then(resolve).catch(reject)
     })
   }
 
