@@ -23,9 +23,18 @@ function setupStorage(area) {
 
   const storage = chromep.storage[area]
 
-  /* ---------------- storage.get --------------- */
-  const coreGet = (x) => storage.get(x || null)
+  /* --------- storage operation promise -------- */
 
+  let promise = null
+
+  /* ---------------- storage.get --------------- */
+  const coreGet = async (x) => {
+    if (promise) {
+      await promise
+    }
+
+    return storage.get(x || null)
+  }
   // TODO: handle async calls to get while set is running
   const get = (getter) => {
     const errorMessage = invalidGetter(getter)
@@ -54,8 +63,7 @@ function setupStorage(area) {
   }
 
   /* ---------------- storage.set --------------- */
-  let getNextValue = (x) => x
-  let promise = null
+  let createNextValue = (x) => x
 
   const set = (arg) => {
     const errorMessage = invalidSetter(arg)
@@ -90,15 +98,15 @@ function setupStorage(area) {
         })
       }
 
-      const composeFn = getNextValue
-      getNextValue = (prev) => setter(composeFn(prev))
+      const composeFn = createNextValue
+      createNextValue = (prev) => setter(composeFn(prev))
 
       if (!promise) {
         // Update storage starting with current values
         promise = coreGet().then((prev) => {
           try {
             // Compose new values
-            const next = getNextValue(prev)
+            const next = createNextValue(prev)
 
             // Execute set
             return storage.set(next).then(() => next)
@@ -106,7 +114,7 @@ function setupStorage(area) {
             throw error
           } finally {
             // Clean up after a set operation
-            getNextValue = (s) => s
+            createNextValue = (s) => s
             promise = null
           }
         })
