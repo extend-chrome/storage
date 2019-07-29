@@ -5,14 +5,14 @@ export default [
     input: 'src/index.js',
     output: [
       {
-        file: 'build/bundle-esm.js',
+        file: 'lib/index-esm.js',
         format: 'esm',
-        sourcemap: 'inline',
+        sourcemap: true,
       },
       {
-        file: 'build/bundle-cjs.js',
+        file: 'lib/index-cjs.js',
         format: 'cjs',
-        sourcemap: 'inline',
+        sourcemap: true,
       },
     ],
     external: [

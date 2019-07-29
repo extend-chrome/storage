@@ -6,10 +6,11 @@
   "license": "MIT",
   "author": "<jacksteamdev@gmail.com>",
   "files": [
-    "/build"
+    "lib",
+    "index.d.ts"
   ],
-  "main": "build/bundle-cjs.js",
-  "module": "build/bundle-esm.js",
+  "main": "lib/index-cjs.js",
+  "module": "lib/index-esm.js",
   "scripts": {
     "build": "rollup -c",
     "start": "rollup -c -w",
