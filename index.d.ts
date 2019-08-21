@@ -1,4 +1,4 @@
-/// reference types="chrome"
+/// <reference types="chrome"/>
 
 import { Observable } from 'rxjs'
 
