@@ -12,27 +12,8 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
-    'comma-dangle': [
-      'error',
-      {
-        arrays: 'always-multiline',
-        objects: 'always-multiline',
-        imports: 'always-multiline',
-        exports: 'always-multiline',
-        functions: 'always-multiline',
-      },
-    ],
     'no-console': 'off',
-    quotes: ['error', 'single'],
-    semi: ['error', 'never'],
-    'no-unused-vars': [
-      'error',
-      {
-        vars: 'all',
-        args: 'after-used',
-        ignoreRestSiblings: true,
-      },
-    ],
+    quotes: 'off',
+    semi: 'off',
   },
-  plugins: ['jsdoc'],
 }

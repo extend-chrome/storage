@@ -6,22 +6,33 @@
   "license": "MIT",
   "author": "<jacksteamdev@gmail.com>",
   "files": [
-    "lib",
-    "index.d.ts"
+    "lib/*.js",
+    "lib/*.js.map",
+    "types/*.d.ts"
   ],
   "main": "lib/index-cjs.js",
   "module": "lib/index-esm.js",
+  "types": "types/index.d.ts",
   "scripts": {
-    "build": "rollup -c",
-    "start": "rollup -c -w",
+    "build": "run-p build:dev",
+    "build:dev": "rollup -c --environment NODE_ENV:development",
+    "build:pro": "rollup -c --environment NODE_ENV:production",
+    "build:types": "tsc -p tsconfig.d.json",
+    "build:watch": "npm run build:dev -- -w",
+    "format": "run-s format:*",
+    "format:package": "sort-package-json && git add package.json",
+    "format:staged": "pretty-quick --staged",
+    "release": "git push && npm publish",
+    "start": "run-p build:watch",
     "test": "jest",
-    "preversion": "npm run build",
-    "postversion": "git push && npm publish"
+    "test:e2e": "jest e2e",
+    "test:quick": "jest --testPathIgnorePatterns=e2e",
+    "postversion": "run-s build:pro build:types release"
   },
-  "jest": {
-    "setupFilesAfterEnv": [
-      "./tests/jest.setup.js"
-    ]
+  "husky": {
+    "hooks": {
+      "pre-commit": "run-s format"
+    }
   },
   "dependencies": {
     "@bumble/chrome-rxjs": "^0.5.0",
@@ -30,13 +41,34 @@
     "rxjs": "^6.5.2"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.5.5",
+    "@sucrase/jest-plugin": "^2.0.0",
+    "@types/chrome": "0.0.81",
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.7.2",
+    "@types/power-assert": "^1.5.0",
+    "@types/puppeteer": "^1.19.1",
+    "@types/sinon-chrome": "^2.2.6",
+    "chrome-promise": "^3.0.5",
+    "delay": "^4.3.0",
     "eslint": "^5.16.0",
-    "eslint-plugin-jsdoc": "^4.8.4",
-    "jest": "^24.8.0",
+    "husky": "^3.0.4",
+    "jest": "^24.9.0",
     "npm-run-all": "^4.1.5",
     "power-assert": "^1.6.1",
-    "rollup": "^0.68.0",
-    "sinon-chrome": "^2.3.2"
+    "prettier": "^1.18.2",
+    "pretty-quick": "^1.11.1",
+    "puppeteer": "^1.19.0",
+    "rollup": "^1.20.0",
+    "rollup-plugin-chrome-extension": "^0.16.2",
+    "rollup-plugin-commonjs": "^10.0.2",
+    "rollup-plugin-empty-dir": "^1.0.3",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-typescript": "^1.0.1",
+    "rollup-plugin-zip": "^0.4.0",
+    "sinon-chrome": "^2.3.2",
+    "sort-package-json": "^1.22.1",
+    "ts-jest": "^24.0.2",
+    "tslib": "^1.10.0",
+    "typescript": "^3.5.3"
   }
 }
