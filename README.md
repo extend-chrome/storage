@@ -42,4 +42,4 @@ This setter will receive the entire contents of that storage area as an argument
 
 Synchronous calls to `set` will be composed into one call to the native `set`. The setters will be applied in order, but each call will resolve with the final value passed to the storage area.
 
-An individual call to `set` will reject if the setter function throws an error or returns an invalid type.
+An individual call to `set` will reject if the setter function throws an error or returns an invalid type, but will not affect other set operations.

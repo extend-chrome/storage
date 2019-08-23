@@ -65,6 +65,7 @@ function setupStorage(area) {
   /* ---------------- storage.set --------------- */
   let createNextValue = (x) => x
 
+  // TODO: handle async setter functions
   const set = (arg) => {
     const errorMessage = invalidSetter(arg)
 
