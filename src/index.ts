@@ -1,12 +1,13 @@
-import chromep from 'chrome-promise'
 import { storage as rxStorage } from '@bumble/chrome-rxjs'
+import chromep from 'chrome-promise'
+import { Observable } from 'rxjs'
+import { mergeMap } from 'rxjs/operators'
+import { chromepApi } from './chrome-promise'
 import {
   invalidGetter,
   invalidSetter,
   invalidSetterReturn,
 } from './validate'
-import { Observable } from 'rxjs'
-import { chromepApi } from './chrome-promise'
 
 type StorageValues = {
   [prop: string]: any
@@ -17,17 +18,55 @@ type GetterFn = (values: StorageValues) => any
 type Getter = string | StorageValues | GetterFn
 
 type SetterFn = (prev: StorageValues) => StorageValues
+type AsyncSetterFn = (
+  prev: StorageValues,
+) => Promise<StorageValues>
 
 type Setter = StorageValues | SetterFn
 
 interface StorageArea {
-  get: (getter: Getter) => Promise<any>
-  set: (setter: Setter) => Promise<any>
-  remove: (query: string) => Promise<any>
-  clear: () => Promise<any>
-  changeStream: Observable<{
+  /**
+   * Get a value or values in the storage area using a key name, a key name array, or a getter function.
+   *
+   * A getter function receives a StorageValues object and can return anything.
+   */
+  get: (getter?: Getter) => Promise<any>
+  /**
+   * Set a value or values in the storage area using an object with keys and default values, or a setter function.
+   *
+   * A setter function receives a StorageValues object and must return a StorageValues object. A setter function cannot be an async function.
+   *
+   * Synchronous calls to set will be composed into a single setter function for performance and reliability.
+   */
+  set: (setter: Setter) => Promise<StorageValues>
+  /**
+   * Set a value or values in the storage area using an async setter function.
+   *
+   * An async setter function should return a Promise that contains a StorageValues object.
+   *
+   * `StorageArea.update` should be used if an async setter function is required. Syncronous calls to set will be more performant than to update.
+   *
+   * ```javascript
+   * storage.local.update(async ({ text }) => {
+   *   const result = await asyncApiRequest(text)
+   *
+   *   return { text: result }
+   * })
+   * ```
+   */
+  update: (
+    asyncSetterFn: AsyncSetterFn,
+  ) => Promise<StorageValues>
+  /** Remove a key from the storage area */
+  remove: (query: string) => Promise<StorageValues>
+  /** Clear the storage area */
+  clear: () => Promise<void>
+  /** Emits an object with changed storage keys and StorageChange values  */
+  readonly changeStream: Observable<{
     [key: string]: chrome.storage.StorageChange
   }>
+  /** Emits the current storage values when changeStream emits */
+  readonly valueStream: Observable<StorageValues>
 }
 
 export const storage = {
@@ -157,9 +196,17 @@ function setupStorage(area: string): StorageArea {
     })
   }
 
+  // TODO: add tests for update
+  const update = async (updater: AsyncSetterFn) => {
+    const store = await get()
+    const result = await updater(store)
+    return set(result)
+  }
+
   return {
     set,
     get,
+    update,
 
     remove(arg: string) {
       const query = ([] as string[]).concat(arg)
@@ -187,6 +234,19 @@ function setupStorage(area: string): StorageArea {
       } else {
         return rxStorage.managed.changeStream
       }
+    },
+
+    get valueStream() {
+      let stream: Observable<StorageValues>
+      if (area === 'local') {
+        stream = rxStorage.local.changeStream
+      } else if (area === 'sync') {
+        stream = rxStorage.sync.changeStream
+      } else {
+        stream = rxStorage.managed.changeStream
+      }
+
+      return stream.pipe(mergeMap(() => get()))
     },
   }
 }
