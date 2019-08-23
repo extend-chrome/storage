@@ -5,8 +5,30 @@ import {
   invalidSetter,
   invalidSetterReturn,
 } from './validate'
+import { Observable } from 'rxjs'
+import { chromepApi } from './chrome-promise'
 
-const AREAS = ['sync', 'local', 'managed']
+type StorageValues = {
+  [prop: string]: any
+}
+
+type GetterFn = (values: StorageValues) => any
+
+type Getter = string | StorageValues | GetterFn
+
+type SetterFn = (prev: StorageValues) => StorageValues
+
+type Setter = StorageValues | SetterFn
+
+interface StorageArea {
+  get: (getter: Getter) => Promise<any>
+  set: (setter: Setter) => Promise<any>
+  remove: (query: string) => Promise<any>
+  clear: () => Promise<any>
+  changeStream: Observable<{
+    [key: string]: chrome.storage.StorageChange
+  }>
+}
 
 export const storage = {
   local: setupStorage('local'),
@@ -14,29 +36,37 @@ export const storage = {
   managed: setupStorage('managed'),
 }
 
-function setupStorage(area) {
-  if (!AREAS.includes(area)) {
-    throw new TypeError(
-      `area must be one of ${AREAS.join(', ')}`,
-    )
-  }
+function setupStorage(area: string): StorageArea {
+  let storage: chromepApi.storage.StorageArea
+  switch (area) {
+    case 'local':
+      storage = chromep.storage.local
+      break
+    case 'sync':
+      storage = chromep.storage.sync
+      break
+    case 'managed':
+      storage = chromep.storage.managed
+      break
 
-  const storage = chromep.storage[area]
+    default:
+      throw new TypeError(`area must be local, sync, managed`)
+  }
 
   /* --------- storage operation promise -------- */
 
-  let promise = null
+  let promise: Promise<any> | null = null
 
   /* ---------------- storage.get --------------- */
-  const coreGet = async (x) => {
+  const coreGet = async (x?: any): Promise<any> => {
     if (promise) {
       await promise
     }
 
     return storage.get(x || null)
   }
-  // TODO: handle async calls to get while set is running
-  const get = (getter) => {
+
+  const get = (getter?: Getter): Promise<any> => {
     const errorMessage = invalidGetter(getter)
 
     if (errorMessage) {
@@ -51,6 +81,7 @@ function setupStorage(area) {
 
     switch (typeof getter) {
       case 'function':
+        // @ts-ignore
         return coreGet().then(getter)
       case 'object':
       case 'string':
@@ -63,10 +94,10 @@ function setupStorage(area) {
   }
 
   /* ---------------- storage.set --------------- */
-  let createNextValue = (x) => x
+  let createNextValue = (x: any) => x
 
   // TODO: handle async setter functions
-  const set = (arg) => {
+  const set = (arg: Setter): Promise<StorageValues> => {
     const errorMessage = invalidSetter(arg)
 
     if (errorMessage) {
@@ -74,7 +105,7 @@ function setupStorage(area) {
     }
 
     return new Promise((resolve, reject) => {
-      let setter
+      let setter: SetterFn
 
       if (typeof arg === 'function') {
         setter = (prev) => {
@@ -130,8 +161,8 @@ function setupStorage(area) {
     set,
     get,
 
-    remove(arg) {
-      const query = [].concat(arg)
+    remove(arg: string) {
+      const query = ([] as string[]).concat(arg)
 
       query.forEach((x) => {
         if (typeof x !== 'string') {
@@ -148,8 +179,14 @@ function setupStorage(area) {
       return storage.clear().then(coreGet)
     },
 
-    get change$() {
-      return rxStorage[area].change$
+    get changeStream() {
+      if (area === 'local') {
+        return rxStorage.local.changeStream
+      } else if (area === 'sync') {
+        return rxStorage.sync.changeStream
+      } else {
+        return rxStorage.managed.changeStream
+      }
     },
   }
 }

@@ -1,4 +1,6 @@
-.vscode/
-lib/
-node_modules/
+.vscode
+lib
+node_modules
 tests/e2e/extension-build
+dist
+types
