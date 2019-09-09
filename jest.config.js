@@ -7,4 +7,8 @@ module.exports = {
   transform: {
     '.(js|jsx)': '@sucrase/jest-plugin',
   },
+  testPathIgnorePatterns: [
+    '<rootDir>/tests/e2e/',
+    '<rootDir>/node_modules/',
+  ],
 }
