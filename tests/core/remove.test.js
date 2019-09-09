@@ -22,7 +22,6 @@ test('remove with string', async () => {
   assert(clear.notCalled)
 
   assert(remove.calledOnceWith(query))
-  assert(get.calledOnce)
 })
 
 test('remove with array', async () => {
@@ -34,7 +33,6 @@ test('remove with array', async () => {
   assert(clear.notCalled)
 
   assert(remove.calledOnceWith(arg))
-  assert(get.calledOnce)
 })
 
 test('throws with unexpected args', async () => {

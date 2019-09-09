@@ -19,5 +19,4 @@ test('clear', async () => {
   assert(remove.notCalled)
 
   assert(clear.calledOnce)
-  assert(get.calledOnceWith(null))
 })
