@@ -1,3 +1,7 @@
 {
-    "jest.pathToJest": "yarn test"
+  //   "jestrunner.runOptions": {
+  //     "args": ["--no-cache"],
+  //     "sourcemaps": "inline",
+  //     "disableOptimisticBPs": true
+  //   }
 }
