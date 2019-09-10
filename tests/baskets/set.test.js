@@ -1,28 +1,48 @@
 import assert from 'power-assert'
-import { getBasket } from '../../src'
+import { getBasket } from '../../src/get-basket'
 
 const { get, set, remove, clear } = chrome.storage.local
 
 const name = 'basket1'
 const basket = getBasket('local', name)
 const prefix = `bumble/storage__${name}`
-const pfixKey = (k) => `${prefix}--${k}`
+const keysName = `${prefix}_keys`
 
-const keys = `${prefix}_keys`
-const x = pfixKey(x)
-const y = pfixKey(y)
-const z = pfixKey(z)
-const a = pfixKey(a)
-const b = pfixKey(b)
+const pfx = (k) => `${prefix}--${k}`
+const unpfx = (pk) => pk.replace(`${prefix}--`, '')
+
+const xfmKeys = (xfm) => (obj) =>
+  Object.keys(obj).reduce(
+    (r, k) => ({ ...r, [xfm(k)]: obj[k] }),
+    {},
+  )
+
+const pfxObj = xfmKeys(pfx)
+const unpfxObj = xfmKeys(unpfx)
+
+const addKeys = (obj) => ({
+  ...obj,
+  [keysName]: Object.keys(obj),
+})
+
+const x = pfx('x')
+const y = pfx('y')
+const z = pfx('z')
+const a = pfx('a')
+const b = pfx('b')
+
+const keys = {
+  [keysName]: ['x', 'y'],
+}
 
 const values = {
-  [keys]: ['x', 'y'],
   [x]: '123',
   [y]: '456',
 }
 
 beforeEach(() => {
   chrome.reset()
+  get.onCall(0).yields(keys)
   get.yields(values)
   set.yields()
   remove.yields()
@@ -30,39 +50,33 @@ beforeEach(() => {
 })
 
 test('set with object', async () => {
-  const raw = { [x]: '123', [y]: '456', [z]: '789' }
-  const expected = { x: '123', y: '456', z: '789' }
+  const raw = { ...values, [z]: '789' }
 
   const result = await basket.set({ z: '789' })
 
-  assert(get.notCalled)
+  const expected = unpfxObj(raw)
+  expect(result).toEqual(expected)
+
+  assert(get.calledTwice)
+  assert(get.calledWith(keysName))
+  assert(get.calledWith([x, y]))
+
+  const setter = pfxObj(addKeys(expected))
+  assert(set.calledOnce)
+  assert(set.calledWith(setter))
+
   assert(remove.notCalled)
   assert(clear.notCalled)
-
-  assert(set.calledOnce)
-  assert(set.calledWith(raw))
-
-  expect(result).toEqual(expected)
 })
 
 test('set with function', async () => {
-  const setter = ({ x }) => ({ x: x + '4' })
-  const spy = jest.fn(setter)
+  const setFn = ({ x }) => ({ x: x + '4' })
+  const spy = jest.fn(setFn)
 
   const raw = { [x]: '1234', [y]: '456' }
-  const expected = { x: '1234', y: '456' }
   const result = await basket.set(spy)
 
-  assert(remove.notCalled)
-  assert(clear.notCalled)
-
-  assert(get.calledTwice)
-  assert(get.calledWith(keys))
-  assert(get.calledWith([x, y]))
-
-  assert(set.calledOnce)
-  assert(set.calledWith(raw))
-
+  const expected = unpfxObj(raw)
   expect(result).toEqual(expected)
 
   expect(spy).toBeCalled()
@@ -71,32 +85,51 @@ test('set with function', async () => {
     x: values[x],
     y: values[y],
   })
+
+  assert(get.calledTwice)
+  assert(get.calledWith(keysName))
+  assert(get.calledWith([x, y]))
+
+  const setter = pfxObj(addKeys(expected))
+  assert(set.calledOnce)
+  assert(set.calledWith(setter))
+
+  assert(remove.notCalled)
+  assert(clear.notCalled)
 })
 
 test('repeated object set operations', async () => {
-  const raw = { [x]: '123', [y]: '456', [z]: '789', [a]: '000' }
-  const expected = { x: '123', y: '456', z: '789', a: '000' }
+  const raw = {
+    [x]: values[x],
+    [y]: values[y],
+    [z]: '789',
+    [a]: '000',
+  }
 
   const results = await Promise.all([
     basket.set({ z: '789' }),
     basket.set({ a: '000' }),
   ])
 
-  assert(get.notCalled)
-  assert(remove.notCalled)
-  assert(clear.notCalled)
-
-  assert(set.calledOnce)
-  assert(set.calledWith(raw))
-
+  const expected = unpfxObj(raw)
   results.forEach((result) => {
     expect(result).toEqual(expected)
   })
+
+  assert(get.calledTwice)
+  assert(get.calledWith(keysName))
+  assert(get.calledWith([x, y]))
+
+  const setter = pfxObj(addKeys(expected))
+  assert(set.calledOnce)
+  assert(set.calledWith(setter))
+
+  assert(remove.notCalled)
+  assert(clear.notCalled)
 })
 
 test('repeated function set operations', async () => {
   const raw = { [x]: '789', [y]: '456', [a]: '7890', [b]: '456' }
-  const expected = { x: '789', y: '456', a: '7890', b: '456' }
 
   const results = await Promise.all([
     basket.set(() => ({ x: '789' })),
@@ -104,55 +137,47 @@ test('repeated function set operations', async () => {
     basket.set(({ y }) => ({ b: y })),
   ])
 
-  assert(get.calledTwice)
-  assert(get.calledWith(keys))
-  assert(get.calledWith([x, y]))
-
-  assert(set.calledOnce)
-  assert(set.calledWith(raw))
-
+  const expected = unpfxObj(raw)
   results.forEach((result) => {
     expect(result).toEqual(expected)
   })
+
+  assert(get.calledTwice)
+  assert(get.calledWith(keysName))
+  assert(get.calledWith([x, y]))
+
+  const setter = pfxObj(addKeys(expected))
+  assert(set.calledOnce)
+  assert(set.calledWith(setter))
+
+  assert(remove.notCalled)
+  assert(clear.notCalled)
 })
 
 test('mixed set operations', async () => {
-  const raw = { [x]: '123', [y]: '456', [z]: '7890' }
-  const expected = { x: '123', y: '456', z: '7890' }
+  const raw = { [x]: '123', [y]: '456', [z]: '7890', [a]: '000' }
 
   const results = await Promise.all([
     basket.set({ z: '789' }),
     basket.set(({ z }) => ({ z: z + 0 })),
+    basket.set({ a: '000' }),
   ])
 
-  assert(get.calledTwice)
-  assert(get.calledWith(keys))
-  assert(get.calledWith([x, y]))
-
-  assert(set.calledOnce)
-  assert(set.calledWith(raw))
-
+  const expected = unpfxObj(raw)
   results.forEach((result) => {
     expect(result).toEqual(expected)
   })
-})
 
-test('throws with unexpected args', async () => {
-  const withNum = () => basket.set(2)
-  const withBool = () => basket.set(true)
-  const withMixedArray = () => basket.set(['a', true])
+  assert(get.calledTwice)
+  assert(get.calledWith(keysName))
+  assert(get.calledWith([x, y]))
 
-  expect(withNum).toThrow(
-    new TypeError('Unexpected argument type: number'),
-  )
+  const setter = pfxObj(addKeys(expected))
+  assert(set.calledOnce)
+  assert(set.calledWith(setter))
 
-  expect(withBool).toThrow(
-    new TypeError('Unexpected argument type: boolean'),
-  )
-
-  expect(withMixedArray).toThrow(
-    new TypeError('Unexpected argument type: Array'),
-  )
+  assert(remove.notCalled)
+  assert(clear.notCalled)
 })
 
 test('rejects if function returns boolean', () => {
@@ -212,13 +237,11 @@ test('rejects if function returns number', async () => {
 })
 
 test('one reject does not disrupt other set ops', async () => {
-  expect.assertions(3)
+  const setFn = ({ x }) => ({ x: x + '4' })
+  const raw = { [x]: '1234', [y]: values[y] }
+  const expected = unpfxObj(raw)
 
-  const setter = ({ x }) => ({ x: x + '4' })
-  const rawSet = { [x]: '1234' }
-  const expected = { x: '1234', y: '456' }
-
-  const spy = jest.fn(setter)
+  const spy = jest.fn(setFn)
   const number = jest.fn(() => 2)
 
   const expectError = (error) => {
@@ -231,25 +254,21 @@ test('one reject does not disrupt other set ops', async () => {
     expect(result).toEqual(expected)
   }
 
-  const shouldReject = basket.set(number).catch(expectError)
-  const shouldResolve = basket.set(spy).then(expectResult)
-
-  const [result] = await Promise.all([
-    shouldResolve,
-    shouldReject,
+  await Promise.all([
+    basket.set(spy).then(expectResult),
+    basket.set(number).catch(expectError),
   ])
 
   assert(remove.notCalled)
   assert(clear.notCalled)
 
   assert(get.calledTwice)
-  assert(get.calledWith(keys))
+  assert(get.calledWith(keysName))
   assert(get.calledWith([x, y]))
 
+  const setter = pfxObj(addKeys(expected))
   assert(set.calledOnce)
-  assert(set.calledWith(rawSet))
-
-  expect(result).toEqual(expected)
+  assert(set.calledWith(setter))
 
   expect(spy).toBeCalled()
   expect(spy).toBeCalledTimes(1)

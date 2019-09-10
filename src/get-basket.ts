@@ -12,7 +12,7 @@ import {
   Setter,
   SetterFn,
 } from './types'
-import { invalidSetter, invalidSetterReturn } from './validate'
+import { invalidSetterReturn } from './validate'
 
 export const getStorageArea = (
   area: string,
@@ -52,15 +52,25 @@ export function getBasket<
   /* --------------- SETUP BASKET --------------- */
   const prefix = `bumble/storage__${name}`
   const keys = `${prefix}_keys`
-  const pfx = (key: string) => `${prefix}--${key}`
-  const unpfx = (obj: S): S =>
+  const pfx = (k: string) => `${prefix}--${k}`
+  const unpfx = (pk: string) => pk.replace(`${prefix}--`, '')
+
+  const xfmKeys = (xfm: (x: string) => string) => (
+    obj: any,
+  ): any =>
     Object.keys(obj).reduce(
-      (r, key) => ({
-        ...r,
-        [key.replace(`${prefix}--`, '')]: obj[key],
-      }),
+      (r, k) => ({ ...r, [xfm(k)]: obj[k] }),
       {},
     )
+
+  const pfxAry = (ary: string[]) => ary.map(pfx)
+  const pfxObj = xfmKeys(pfx)
+  const unpfxObj = xfmKeys(unpfx)
+
+  const addKeys = (obj: S) => ({
+    ...obj,
+    [keys]: Object.keys(obj),
+  })
 
   /* --------- STORAGE OPERATION PROMISE -------- */
 
@@ -73,7 +83,7 @@ export function getBasket<
   const coreGet = async (x?: NativeGetter<S>): Promise<S> => {
     // Flush pending storage.set ops before
     if (promise) {
-      await promise
+      return promise
     }
 
     let getter
@@ -81,23 +91,19 @@ export function getBasket<
       // get all
       getter = await storage
         .get(keys)
-        .then((r) => (r[keys].map(pfx) || []) as string[])
+        .then((r): string[] => r[keys] || [])
+        .then(pfxAry)
     } else if (typeof x === 'string') {
       getter = pfx(x)
     } else if (Array.isArray(x)) {
-      getter = x.map(pfx)
+      getter = pfxAry(x)
     } else {
-      getter = Object.keys(x).reduce(
-        (r, k) => {
-          return { ...r, [pfx(k)]: x[k] }
-        },
-        {} as { [prop: string]: any },
-      )
+      getter = pfxObj(x)
     }
 
-    const result = (await storage.get(getter)) as S
+    const result: S = (await storage.get(getter)) as S
 
-    return unpfx(result)
+    return unpfxObj(result)
   }
 
   const get = (getter?: Getter<S>): Promise<S> => {
@@ -121,20 +127,12 @@ export function getBasket<
   /*                  STORAGE.SET                 */
   /* -------------------------------------------- */
 
-  let createNextValue = (x: S): S => x
+  const _createNextValue = (x: S): S => x
+  let createNextValue = _createNextValue
 
-  const set = (arg: Setter<S>): Promise<S> => {
-    const errorMessage = invalidSetter(arg)
-
-    if (errorMessage) {
-      throw new TypeError(errorMessage)
-    }
-
-    // TODO: if !promise && setter !== fn, just set native
-
-    return new Promise((resolve, reject) => {
+  const set = (arg: Setter<S>): Promise<S> =>
+    new Promise((resolve, reject) => {
       let setter: SetterFn<S>
-
       if (typeof arg === 'function') {
         setter = (prev) => {
           const result = (arg as SetterFn<S>)(prev)
@@ -161,20 +159,21 @@ export function getBasket<
       const composeFn = createNextValue
       createNextValue = (prev) => setter(composeFn(prev))
 
-      if (!promise) {
+      if (promise === null) {
         // Update storage starting with current values
         promise = coreGet().then((prev) => {
           try {
             // Compose new values
             const next = createNextValue(prev)
+            const pfxNext = pfxObj(addKeys(next))
 
             // Execute set
-            return storage.set(next).then(() => next)
+            return storage.set(pfxNext).then(() => next)
           } catch (error) {
             throw error
           } finally {
             // Clean up after a set operation
-            createNextValue = (s) => s
+            createNextValue = _createNextValue
             promise = null
           }
         })
@@ -183,7 +182,6 @@ export function getBasket<
       // All calls to set should call resolve or reject
       promise.then(resolve).catch(reject)
     })
-  }
 
   return {
     set,
