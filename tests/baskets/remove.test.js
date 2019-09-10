@@ -1,5 +1,5 @@
 import assert from 'power-assert'
-import { getBasket } from '../../src'
+import { getBasket } from '../../src/get-basket'
 
 const { get, set, remove, clear } = chrome.storage.local
 
@@ -7,9 +7,13 @@ const name = 'basket1'
 const basket = getBasket('local', name)
 const prefix = `bumble/storage__${name}`
 
+const pfx = (k) => `${prefix}--${k}`
+
 const keys = `${prefix}_keys`
-const x = `${prefix}--x`
-const y = `${prefix}--y`
+
+const x = pfx('x')
+const y = pfx('y')
+const z = pfx('z')
 
 const values = {
   [keys]: ['x', 'y'],
@@ -30,25 +34,41 @@ test('remove with string', async () => {
 
   await basket.remove(arg)
 
-  assert(get.notCalled)
-  assert(set.notCalled)
-  assert(clear.notCalled)
+  assert(remove.calledOnce)
+  assert(remove.calledWith([x]))
 
-  assert(remove.calledOnce())
-  assert(remove.calledWith(x))
+  assert(get.calledOnce)
+  assert(get.calledWith(keys))
+
+  assert(set.calledOnce)
+  assert(
+    set.calledWith({
+      [keys]: ['y'],
+    }),
+  )
+
+  assert(clear.notCalled)
 })
 
 test('remove with array', async () => {
-  const arg = ['x', 'z']
-  const z = `${prefix}--z`
+  const arg = ['y', 'z']
 
   await basket.remove(arg)
 
-  assert(get.notCalled)
-  assert(set.notCalled)
-  assert(clear.notCalled)
+  assert(remove.calledOnce)
+  assert(remove.calledWith([y, z]))
 
-  assert(remove.calledOnceWith([x, z]))
+  assert(get.calledOnce)
+  assert(get.calledWith(keys))
+
+  assert(set.calledOnce)
+  assert(
+    set.calledWith({
+      [keys]: ['x'],
+    }),
+  )
+
+  assert(clear.notCalled)
 })
 
 test('throws with unexpected args', async () => {

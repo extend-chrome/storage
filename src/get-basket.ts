@@ -72,6 +72,9 @@ export function getBasket<
     [keys]: Object.keys(obj),
   })
 
+  const getKeys = () =>
+    storage.get(keys).then((r): string[] => r[keys] || [])
+
   /* --------- STORAGE OPERATION PROMISE -------- */
 
   let promise: Promise<S> | null = null
@@ -89,10 +92,7 @@ export function getBasket<
     let getter
     if (x === undefined || x === null) {
       // get all
-      getter = await storage
-        .get(keys)
-        .then((r): string[] => r[keys] || [])
-        .then(pfxAry)
+      getter = await getKeys().then(pfxAry)
     } else if (typeof x === 'string') {
       getter = pfx(x)
     } else if (Array.isArray(x)) {
@@ -204,7 +204,14 @@ export function getBasket<
         }
       })
 
-      return storage.remove(query)
+      return storage
+        .remove(pfxAry(query))
+        .then(getKeys)
+        .then((_keys) =>
+          storage.set({
+            [keys]: _keys.filter((k) => !query.includes(k)),
+          }),
+        )
     },
 
     clear() {
