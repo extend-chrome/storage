@@ -1,5 +1,5 @@
 import assert from 'power-assert'
-import { getBasket } from '../../src'
+import { getBasket } from '../../src/get-basket'
 
 const { get, set, remove, clear } = chrome.storage.local
 
@@ -35,8 +35,6 @@ test('clear', async () => {
   assert(get.calledOnce)
   assert(get.calledWith(keys))
 
-  assert(remove.calledThrice)
-  assert(remove.calledWith(keys))
-  assert(remove.calledWith(x))
-  assert(remove.calledWith(y))
+  assert(remove.calledOnce)
+  assert(remove.calledWith([keys, x, y]))
 })

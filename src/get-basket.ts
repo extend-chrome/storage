@@ -74,6 +74,8 @@ export function getBasket<
 
   const getKeys = () =>
     storage.get(keys).then((r): string[] => r[keys] || [])
+  const setKeys = (_keys: string[]) =>
+    storage.set({ [keys]: _keys })
 
   /* --------- STORAGE OPERATION PROMISE -------- */
 
@@ -183,39 +185,42 @@ export function getBasket<
       promise.then(resolve).catch(reject)
     })
 
+  const remove = (arg: string | string[]) => {
+    const query = ([] as string[]).concat(arg)
+
+    query.forEach((x) => {
+      if (typeof x !== 'string') {
+        throw new TypeError(
+          `Unexpected argument type: ${typeof x}`,
+        )
+      }
+    })
+
+    const _setKeys = (_keys: string[]) =>
+      setKeys(_keys.filter((k) => !query.includes(k)))
+
+    return storage
+      .remove(pfxAry(query))
+      .then(getKeys)
+      .then(_setKeys)
+  }
+
   return {
     set,
     get,
+    remove,
+
+    async clear() {
+      const _keys = await getKeys()
+      const query = [keys, ...pfxAry(_keys)]
+
+      return storage.remove(query)
+    },
 
     async update(updater) {
       const store = await get()
       const result = await updater(store)
       return set(result)
-    },
-
-    remove(arg) {
-      const query = ([] as string[]).concat(arg)
-
-      query.forEach((x) => {
-        if (typeof x !== 'string') {
-          throw new TypeError(
-            `Unexpected argument type: ${typeof x}`,
-          )
-        }
-      })
-
-      return storage
-        .remove(pfxAry(query))
-        .then(getKeys)
-        .then((_keys) =>
-          storage.set({
-            [keys]: _keys.filter((k) => !query.includes(k)),
-          }),
-        )
-    },
-
-    clear() {
-      return storage.clear()
     },
 
     get changeStream() {
