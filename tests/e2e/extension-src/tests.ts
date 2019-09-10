@@ -2,7 +2,7 @@ import {
   messages,
   onMessage,
   sendMessage,
-} from '../../../src/index'
+} from '../../../src/get-basket'
 
 /* -------------------------------------------- */
 /*                test simple api               */

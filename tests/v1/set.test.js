@@ -1,5 +1,5 @@
 import assert from 'power-assert'
-import { storage } from '../../src/index'
+import { storage } from '../../src/get-basket'
 
 const { get, set, remove, clear } = chrome.storage.local
 const values = { x: '123', y: '456' }
