@@ -95,6 +95,10 @@ export function getBasket<
     if (x === undefined || x === null) {
       // get all
       getter = await getKeys().then(pfxAry)
+
+      if (getter.length === 0) {
+        return {}
+      }
     } else if (typeof x === 'string') {
       getter = pfx(x)
     } else if (Array.isArray(x)) {

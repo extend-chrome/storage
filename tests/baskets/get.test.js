@@ -167,5 +167,113 @@ test('throws with unexpected args', async () => {
   )
 })
 
-test.todo('composes synchronous string and array calls')
-test.todo('resolves after storage.set operations complete')
+test('get from empty storage with string', async () => {
+  get.yields({})
+
+  const getter = 'x'
+
+  const result = await basket.get(getter)
+
+  const expected = {}
+  expect(result).toEqual(expected)
+
+  assert(set.notCalled)
+  assert(remove.notCalled)
+  assert(clear.notCalled)
+
+  assert(get.calledOnce)
+  assert(get.calledWith(x))
+})
+
+test('get from empty storage with object', async () => {
+  const getter = { x: 'abc', z: '789' }
+  const rawGetter = { [x]: getter.x, [z]: getter.z }
+
+  get.yields(rawGetter)
+
+  const result = await basket.get(getter)
+
+  const expected = getter
+  expect(result).toEqual(expected)
+
+  assert(set.notCalled)
+  assert(remove.notCalled)
+  assert(clear.notCalled)
+
+  assert(get.calledOnce)
+  assert(get.calledWith(rawGetter))
+})
+
+test('get from empty storage with array', async () => {
+  get.yields({})
+
+  const getter = ['x', 'z']
+  const rawGetter = [x, z]
+
+  const result = await basket.get(getter)
+
+  const expected = {}
+  expect(result).toEqual(expected)
+
+  assert(set.notCalled)
+  assert(remove.notCalled)
+  assert(clear.notCalled)
+
+  assert(get.calledOnce)
+  assert(get.calledWith(rawGetter))
+})
+
+test('get from empty storage with function', async () => {
+  get.yields({})
+
+  const getter = ({ x = '123' }) => x + 4
+  const spy = jest.fn(getter)
+
+  const result = await basket.get(spy)
+
+  const expected = '1234'
+  expect(result).toEqual(expected)
+
+  assert(set.notCalled)
+  assert(remove.notCalled)
+  assert(clear.notCalled)
+
+  assert(get.calledOnce)
+  assert(get.calledWith(keys))
+
+  expect(spy).toBeCalled()
+  expect(spy).toBeCalledTimes(1)
+  expect(spy).toBeCalledWith({})
+})
+
+test('get from empty storage with undefined', async () => {
+  get.yields({})
+
+  const result = await basket.get()
+  const expected = {}
+
+  assert(set.notCalled)
+  assert(remove.notCalled)
+  assert(clear.notCalled)
+
+  assert(get.calledOnce)
+  assert(get.calledWith(keys))
+
+  expect(result).toEqual(expected)
+})
+
+test('get from empty storage with null', async () => {
+  get.yields({})
+
+  const result = await basket.get(null)
+  const expected = {}
+
+  assert(set.notCalled)
+  assert(remove.notCalled)
+  assert(clear.notCalled)
+
+  assert(get.calledOnce)
+  assert(get.calledWith(keys))
+
+  expect(result).toEqual(expected)
+})
