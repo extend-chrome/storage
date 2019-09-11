@@ -255,7 +255,7 @@ export function getBasket<
   }
 }
 
-interface StorageArea<
+export interface StorageArea<
   T extends {
     [key: string]: any
   }

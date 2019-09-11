@@ -1,9 +1,10 @@
 import { getBasket } from './get-basket'
+import { AnyObject } from './types'
 
 export const storage = {
-  local: getBasket('local', 'local'),
-  sync: getBasket('sync', 'sync'),
-  managed: getBasket('managed', 'managed'),
+  local: getBasket<AnyObject>('local', 'local'),
+  sync: getBasket<AnyObject>('sync', 'sync'),
+  managed: getBasket<AnyObject>('managed', 'managed'),
 }
 
 export { getBasket }

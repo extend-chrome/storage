@@ -20,3 +20,7 @@ export type Changes<T> = {
     newValue: T[K]
   }
 }
+
+export type AnyObject = {
+  [prop: string]: any
+}
