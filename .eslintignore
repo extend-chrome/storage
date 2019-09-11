@@ -1,7 +1,4 @@
 /node_modules
-<<<<<<< HEAD
 /build
 /docs
-=======
-/lib
->>>>>>> template/master
+/e2e
