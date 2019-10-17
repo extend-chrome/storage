@@ -24,11 +24,8 @@
     "format:staged": "pretty-quick --staged",
     "release": "git push && npm publish",
     "start": "run-p build:watch",
-    "test": "npm run test:quick",
-    "test:e2e": "jest e2e --runInBand",
-    "test:full": "run-s test:quick test:e2e",
-    "test:quick": "jest --testPathIgnorePatterns=e2e",
-    "preversion": "run-s test:full",
+    "test": "jest",
+    "preversion": "run-s test",
     "postversion": "run-s build:pro build:types release"
   },
   "husky": {
