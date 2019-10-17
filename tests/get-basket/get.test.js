@@ -1,10 +1,10 @@
 import assert from 'power-assert'
-import { getBasket } from '../../src/get-basket'
+import { useBucket } from '../../src/get-bucket'
 
 const { get, set, remove, clear } = chrome.storage.local
 
-const name = 'basket1'
-const basket = getBasket('local', name)
+const name = 'bucket1'
+const bucket = useBucket('local', name)
 const prefix = `bumble/storage__${name}`
 
 const keys = `${prefix}_keys`
@@ -33,7 +33,7 @@ test('get with string', async () => {
   const got = { [x]: values[x] }
   get.yields(got)
 
-  const result = await basket.get(getter)
+  const result = await bucket.get(getter)
 
   assert(set.notCalled)
   assert(remove.notCalled)
@@ -53,7 +53,7 @@ test('get with object', async () => {
   const got = { [x]: values[x], [z]: getter.z }
   get.yields(got)
 
-  const result = await basket.get(getter)
+  const result = await bucket.get(getter)
 
   assert(set.notCalled)
   assert(remove.notCalled)
@@ -73,7 +73,7 @@ test('get with array', async () => {
   const got = { [x]: values[x], [y]: values[y] }
   get.yields(got)
 
-  const result = await basket.get(getter)
+  const result = await bucket.get(getter)
 
   assert(set.notCalled)
   assert(remove.notCalled)
@@ -92,7 +92,7 @@ test('get with function', async () => {
   get.onCall(0).yields({ [keys]: values[keys] })
   get.onCall(1).yields({ [x]: values[x], [y]: values[y] })
 
-  const result = await basket.get(spy)
+  const result = await bucket.get(spy)
 
   assert(set.notCalled)
   assert(remove.notCalled)
@@ -116,7 +116,7 @@ test('get with undefined', async () => {
   get.onCall(0).yields({ [keys]: values[keys] })
   get.onCall(1).yields({ [x]: values[x], [y]: values[y] })
 
-  const result = await basket.get()
+  const result = await bucket.get()
   const expected = {
     x: values[x],
     y: values[y],
@@ -137,7 +137,7 @@ test('get with null', async () => {
   get.onCall(0).yields({ [keys]: values[keys] })
   get.onCall(1).yields({ [x]: values[x], [y]: values[y] })
 
-  const result = await basket.get(null)
+  const result = await bucket.get(null)
   const expected = {
     x: values[x],
     y: values[y],
@@ -155,8 +155,8 @@ test('get with null', async () => {
 })
 
 test('throws with unexpected args', async () => {
-  const withNum = () => basket.get(2)
-  const withBool = () => basket.get(true)
+  const withNum = () => bucket.get(2)
+  const withBool = () => bucket.get(true)
 
   expect(withNum).toThrow(
     new TypeError('Unexpected argument type: number'),
@@ -172,7 +172,7 @@ test('get from empty storage with string', async () => {
 
   const getter = 'x'
 
-  const result = await basket.get(getter)
+  const result = await bucket.get(getter)
 
   const expected = {}
   expect(result).toEqual(expected)
@@ -191,7 +191,7 @@ test('get from empty storage with object', async () => {
 
   get.yields(rawGetter)
 
-  const result = await basket.get(getter)
+  const result = await bucket.get(getter)
 
   const expected = getter
   expect(result).toEqual(expected)
@@ -210,7 +210,7 @@ test('get from empty storage with array', async () => {
   const getter = ['x', 'z']
   const rawGetter = [x, z]
 
-  const result = await basket.get(getter)
+  const result = await bucket.get(getter)
 
   const expected = {}
   expect(result).toEqual(expected)
@@ -229,7 +229,7 @@ test('get from empty storage with function', async () => {
   const getter = ({ x = '123' }) => x + 4
   const spy = jest.fn(getter)
 
-  const result = await basket.get(spy)
+  const result = await bucket.get(spy)
 
   const expected = '1234'
   expect(result).toEqual(expected)
@@ -249,7 +249,7 @@ test('get from empty storage with function', async () => {
 test('get from empty storage with undefined', async () => {
   get.yields({})
 
-  const result = await basket.get()
+  const result = await bucket.get()
   const expected = {}
 
   assert(set.notCalled)
@@ -265,7 +265,7 @@ test('get from empty storage with undefined', async () => {
 test('get from empty storage with null', async () => {
   get.yields({})
 
-  const result = await basket.get(null)
+  const result = await bucket.get(null)
   const expected = {}
 
   assert(set.notCalled)

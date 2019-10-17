@@ -1,10 +1,10 @@
 import assert from 'power-assert'
-import { getBasket } from '../../src/get-basket'
+import { useBucket } from '../../src/get-bucket'
 
 const { get, set, remove, clear } = chrome.storage.local
 
-const name = 'basket1'
-const basket = getBasket('local', name)
+const name = 'bucket1'
+const bucket = useBucket('local', name)
 const prefix = `bumble/storage__${name}`
 const keysName = `${prefix}_keys`
 
@@ -36,7 +36,7 @@ test('set empty storage with object', async () => {
 
   const expected = { z: '789' }
 
-  const result = await basket.set(expected)
+  const result = await bucket.set(expected)
 
   expect(result).toEqual(expected)
 
@@ -44,8 +44,8 @@ test('set empty storage with object', async () => {
   assert(get.calledWith(keysName))
 
   const setter = {
-    'bumble/storage__basket1--z': '789',
-    'bumble/storage__basket1_keys': Object.keys(expected),
+    'bumble/storage__bucket1--z': '789',
+    'bumble/storage__bucket1_keys': Object.keys(expected),
   }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
@@ -60,7 +60,7 @@ test('set empty storage with function', async () => {
   const expected = { z: '789' }
   const spy = jest.fn(() => expected)
 
-  const result = await basket.set(spy)
+  const result = await bucket.set(spy)
 
   expect(result).toEqual(expected)
 
@@ -68,8 +68,8 @@ test('set empty storage with function', async () => {
   assert(get.calledWith(keysName))
 
   const setter = {
-    'bumble/storage__basket1--z': '789',
-    'bumble/storage__basket1_keys': Object.keys(expected),
+    'bumble/storage__bucket1--z': '789',
+    'bumble/storage__bucket1_keys': Object.keys(expected),
   }
   assert(set.calledOnce)
   assert(set.calledWith(setter))

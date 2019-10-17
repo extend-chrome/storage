@@ -1,10 +1,10 @@
 import assert from 'power-assert'
-import { getBasket } from '../../src/get-basket'
+import { useBucket } from '../../src/get-bucket'
 
 const { get, set, remove, clear } = chrome.storage.local
 
-const name = 'basket1'
-const basket = getBasket('local', name)
+const name = 'bucket1'
+const bucket = useBucket('local', name)
 const prefix = `bumble/storage__${name}`
 const keysName = `${prefix}_keys`
 
@@ -52,7 +52,7 @@ beforeEach(() => {
 test('set with object', async () => {
   const raw = { ...values, [z]: '789' }
 
-  const result = await basket.set({ z: '789' })
+  const result = await bucket.set({ z: '789' })
 
   const expected = unpfxObj(raw)
   expect(result).toEqual(expected)
@@ -63,7 +63,7 @@ test('set with object', async () => {
 
   const setter = {
     ...raw,
-    'bumble/storage__basket1_keys': Object.keys(expected),
+    'bumble/storage__bucket1_keys': Object.keys(expected),
   }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
@@ -77,7 +77,7 @@ test('set with function', async () => {
   const spy = jest.fn(setFn)
 
   const raw = { [x]: '1234', [y]: '456' }
-  const result = await basket.set(spy)
+  const result = await bucket.set(spy)
 
   const expected = unpfxObj(raw)
   expect(result).toEqual(expected)
@@ -95,7 +95,7 @@ test('set with function', async () => {
 
   const setter = {
     ...raw,
-    'bumble/storage__basket1_keys': Object.keys(expected),
+    'bumble/storage__bucket1_keys': Object.keys(expected),
   }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
@@ -113,8 +113,8 @@ test('repeated object set operations', async () => {
   }
 
   const results = await Promise.all([
-    basket.set({ z: '789' }),
-    basket.set({ a: '000' }),
+    bucket.set({ z: '789' }),
+    bucket.set({ a: '000' }),
   ])
 
   const expected = unpfxObj(raw)
@@ -128,7 +128,7 @@ test('repeated object set operations', async () => {
 
   const setter = {
     ...raw,
-    'bumble/storage__basket1_keys': Object.keys(expected),
+    'bumble/storage__bucket1_keys': Object.keys(expected),
   }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
@@ -141,9 +141,9 @@ test('repeated function set operations', async () => {
   const raw = { [x]: '789', [y]: '456', [a]: '7890', [b]: '456' }
 
   const results = await Promise.all([
-    basket.set(() => ({ x: '789' })),
-    basket.set(({ x }) => ({ a: x + '0' })),
-    basket.set(({ y }) => ({ b: y })),
+    bucket.set(() => ({ x: '789' })),
+    bucket.set(({ x }) => ({ a: x + '0' })),
+    bucket.set(({ y }) => ({ b: y })),
   ])
 
   const expected = unpfxObj(raw)
@@ -157,7 +157,7 @@ test('repeated function set operations', async () => {
 
   const setter = {
     ...raw,
-    'bumble/storage__basket1_keys': Object.keys(expected),
+    'bumble/storage__bucket1_keys': Object.keys(expected),
   }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
@@ -170,9 +170,9 @@ test('mixed set operations', async () => {
   const raw = { [x]: '123', [y]: '456', [z]: '7890', [a]: '000' }
 
   const results = await Promise.all([
-    basket.set({ z: '789' }),
-    basket.set(({ z }) => ({ z: z + 0 })),
-    basket.set({ a: '000' }),
+    bucket.set({ z: '789' }),
+    bucket.set(({ z }) => ({ z: z + 0 })),
+    bucket.set({ a: '000' }),
   ])
 
   const expected = unpfxObj(raw)
@@ -186,7 +186,7 @@ test('mixed set operations', async () => {
 
   const setter = {
     ...raw,
-    'bumble/storage__basket1_keys': Object.keys(expected),
+    'bumble/storage__bucket1_keys': Object.keys(expected),
   }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
@@ -206,7 +206,7 @@ test('rejects if function returns boolean', () => {
     )
   }
 
-  return basket.set(boolean).catch(expectError)
+  return bucket.set(boolean).catch(expectError)
 })
 
 test('rejects if function returns function', async () => {
@@ -220,7 +220,7 @@ test('rejects if function returns function', async () => {
     )
   }
 
-  return basket.set(fn).catch(expectError)
+  return bucket.set(fn).catch(expectError)
 })
 
 test('rejects if function returns string', async () => {
@@ -234,7 +234,7 @@ test('rejects if function returns string', async () => {
     )
   }
 
-  return basket.set(string).catch(expectError)
+  return bucket.set(string).catch(expectError)
 })
 
 test('rejects if function returns number', async () => {
@@ -248,7 +248,7 @@ test('rejects if function returns number', async () => {
     )
   }
 
-  return basket.set(number).catch(expectError)
+  return bucket.set(number).catch(expectError)
 })
 
 test('one reject does not disrupt other set ops', async () => {
@@ -270,8 +270,8 @@ test('one reject does not disrupt other set ops', async () => {
   }
 
   await Promise.all([
-    basket.set(spy).then(expectResult),
-    basket.set(number).catch(expectError),
+    bucket.set(spy).then(expectResult),
+    bucket.set(number).catch(expectError),
   ])
 
   assert(remove.notCalled)
@@ -283,7 +283,7 @@ test('one reject does not disrupt other set ops', async () => {
 
   const setter = {
     ...raw,
-    'bumble/storage__basket1_keys': Object.keys(expected),
+    'bumble/storage__bucket1_keys': Object.keys(expected),
   }
   assert(set.calledOnce)
   assert(set.calledWith(setter))

@@ -1,9 +1,9 @@
 import assert from 'power-assert'
-import { getBasket } from '../../src/get-basket'
+import { useBucket } from '../../src/get-bucket'
 
 const { get, set, remove, clear } = chrome.storage.local
 
-const prefix = 'bumble/storage__basket1'
+const prefix = 'bumble/storage__bucket1'
 
 const keys = `${prefix}_keys`
 const x = `${prefix}--x`
@@ -25,9 +25,9 @@ beforeEach(() => {
 })
 
 test('clear', async () => {
-  const basket = getBasket('local', 'basket1')
+  const bucket = useBucket('local', 'bucket1')
 
-  await basket.clear()
+  await bucket.clear()
 
   assert(set.notCalled)
   assert(clear.notCalled)

@@ -32,7 +32,7 @@ export const getStorageArea = (
   }
 }
 
-export function getBasket<
+export function useBucket<
   T extends {
     [key: string]: any
   }
@@ -51,7 +51,7 @@ export function getBasket<
 
   const storage = getStorageArea(area)
 
-  /* --------------- SETUP BASKET --------------- */
+  /* --------------- SETUP BUCKET --------------- */
   const prefix = `bumble/storage__${name}`
   const keys = `${prefix}_keys`
   const pfx = (k: string) => {

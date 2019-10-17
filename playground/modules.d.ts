@@ -1,7 +1,7 @@
 interface Observable<T> {}
 
 declare module '@bumble/storage' {
-  export function getBasket<T>(
+  export function useBucket<T>(
     area: string,
     name: string,
   ): StorageArea<T>

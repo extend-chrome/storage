@@ -1,10 +1,10 @@
 import assert from 'power-assert'
-import { getBasket } from '../../src/get-basket'
+import { useBucket } from '../../src/get-bucket'
 
 const { get, set, remove, clear } = chrome.storage.local
 
-const name = 'basket1'
-const basket = getBasket('local', name)
+const name = 'bucket1'
+const bucket = useBucket('local', name)
 const prefix = `bumble/storage__${name}`
 const keysName = `${prefix}_keys`
 
@@ -57,7 +57,7 @@ test('rejects if function returns boolean', () => {
     )
   }
 
-  return basket.set(boolean).catch(expectError)
+  return bucket.set(boolean).catch(expectError)
 })
 
 test('rejects if function returns function', async () => {
@@ -71,7 +71,7 @@ test('rejects if function returns function', async () => {
     )
   }
 
-  return basket.set(fn).catch(expectError)
+  return bucket.set(fn).catch(expectError)
 })
 
 test('rejects if function returns string', async () => {
@@ -85,7 +85,7 @@ test('rejects if function returns string', async () => {
     )
   }
 
-  return basket.set(string).catch(expectError)
+  return bucket.set(string).catch(expectError)
 })
 
 test('rejects if function returns number', async () => {
@@ -99,7 +99,7 @@ test('rejects if function returns number', async () => {
     )
   }
 
-  return basket.set(number).catch(expectError)
+  return bucket.set(number).catch(expectError)
 })
 
 test('one reject does not disrupt other set ops', async () => {
@@ -121,8 +121,8 @@ test('one reject does not disrupt other set ops', async () => {
   }
 
   await Promise.all([
-    basket.set(spy).then(expectResult),
-    basket.set(number).catch(expectError),
+    bucket.set(spy).then(expectResult),
+    bucket.set(number).catch(expectError),
   ])
 
   assert(remove.notCalled)
@@ -134,7 +134,7 @@ test('one reject does not disrupt other set ops', async () => {
 
   const setter = {
     ...raw,
-    'bumble/storage__basket1_keys': ['x', 'y'],
+    'bumble/storage__bucket1_keys': ['x', 'y'],
   }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
