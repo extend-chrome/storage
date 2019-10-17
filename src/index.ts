@@ -1,4 +1,4 @@
-import { useBucket } from './get-bucket'
+import { useBucket } from './bucket'
 import { AnyObject } from './types'
 
 export const storage = {

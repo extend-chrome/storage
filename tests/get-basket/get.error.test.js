@@ -1,4 +1,4 @@
-import { useBucket } from '../../src/get-bucket'
+import { useBucket } from '../../src/bucket'
 
 const { get, set, remove, clear } = chrome.storage.local
 
