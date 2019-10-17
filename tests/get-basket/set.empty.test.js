@@ -43,7 +43,10 @@ test('set empty storage with object', async () => {
   assert(get.calledOnce)
   assert(get.calledWith(keysName))
 
-  const setter = pfxObj(addKeys(expected))
+  const setter = {
+    'bumble/storage__basket1--z': '789',
+    'bumble/storage__basket1_keys': Object.keys(expected),
+  }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
 
@@ -64,7 +67,10 @@ test('set empty storage with function', async () => {
   assert(get.calledOnce)
   assert(get.calledWith(keysName))
 
-  const setter = pfxObj(addKeys(expected))
+  const setter = {
+    'bumble/storage__basket1--z': '789',
+    'bumble/storage__basket1_keys': Object.keys(expected),
+  }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
 

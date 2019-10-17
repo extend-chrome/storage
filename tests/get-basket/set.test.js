@@ -61,7 +61,10 @@ test('set with object', async () => {
   assert(get.calledWith(keysName))
   assert(get.calledWith([x, y]))
 
-  const setter = pfxObj(addKeys(expected))
+  const setter = {
+    ...raw,
+    'bumble/storage__basket1_keys': Object.keys(expected),
+  }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
 
@@ -90,7 +93,10 @@ test('set with function', async () => {
   assert(get.calledWith(keysName))
   assert(get.calledWith([x, y]))
 
-  const setter = pfxObj(addKeys(expected))
+  const setter = {
+    ...raw,
+    'bumble/storage__basket1_keys': Object.keys(expected),
+  }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
 
@@ -120,7 +126,10 @@ test('repeated object set operations', async () => {
   assert(get.calledWith(keysName))
   assert(get.calledWith([x, y]))
 
-  const setter = pfxObj(addKeys(expected))
+  const setter = {
+    ...raw,
+    'bumble/storage__basket1_keys': Object.keys(expected),
+  }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
 
@@ -146,7 +155,10 @@ test('repeated function set operations', async () => {
   assert(get.calledWith(keysName))
   assert(get.calledWith([x, y]))
 
-  const setter = pfxObj(addKeys(expected))
+  const setter = {
+    ...raw,
+    'bumble/storage__basket1_keys': Object.keys(expected),
+  }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
 
@@ -172,7 +184,10 @@ test('mixed set operations', async () => {
   assert(get.calledWith(keysName))
   assert(get.calledWith([x, y]))
 
-  const setter = pfxObj(addKeys(expected))
+  const setter = {
+    ...raw,
+    'bumble/storage__basket1_keys': Object.keys(expected),
+  }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
 
@@ -266,7 +281,10 @@ test('one reject does not disrupt other set ops', async () => {
   assert(get.calledWith(keysName))
   assert(get.calledWith([x, y]))
 
-  const setter = pfxObj(addKeys(expected))
+  const setter = {
+    ...raw,
+    'bumble/storage__basket1_keys': Object.keys(expected),
+  }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
 

@@ -1,7 +1,7 @@
 import { storage as rxStorage } from '@bumble/chrome-rxjs'
 import chromep from 'chrome-promise'
 import { chromepApi } from 'chrome-promise/chrome-promise'
-import { Observable } from 'rxjs'
+import { Observable, concat, from } from 'rxjs'
 import { mergeMap } from 'rxjs/operators'
 import {
   AsyncSetterFn,
@@ -26,7 +26,9 @@ export const getStorageArea = (
       return chromep.storage.managed
 
     default:
-      throw new TypeError(`area must be local, sync, managed`)
+      throw new TypeError(
+        `area must be "local" | "sync" | "managed"`,
+      )
   }
 }
 
@@ -52,30 +54,34 @@ export function getBasket<
   /* --------------- SETUP BASKET --------------- */
   const prefix = `bumble/storage__${name}`
   const keys = `${prefix}_keys`
-  const pfx = (k: string) => `${prefix}--${k}`
-  const unpfx = (pk: string) => pk.replace(`${prefix}--`, '')
+  const pfx = (k: string) => {
+    return `${prefix}--${k}`
+  }
+  const unpfx = (pk: string) => {
+    return pk.replace(`${prefix}--`, '')
+  }
 
   const xfmKeys = (xfm: (x: string) => string) => (
     obj: any,
-  ): any =>
-    Object.keys(obj).reduce(
+  ): any => {
+    return Object.keys(obj).reduce(
       (r, k) => ({ ...r, [xfm(k)]: obj[k] }),
       {},
     )
+  }
 
-  const pfxAry = (ary: string[]) => ary.map(pfx)
+  const pfxAry = (ary: string[]) => {
+    return ary.map(pfx)
+  }
   const pfxObj = xfmKeys(pfx)
   const unpfxObj = xfmKeys(unpfx)
 
-  const addKeys = (obj: S) => ({
-    ...obj,
-    [keys]: Object.keys(obj),
-  })
-
-  const getKeys = () =>
-    storage.get(keys).then((r): string[] => r[keys] || [])
-  const setKeys = (_keys: string[]) =>
-    storage.set({ [keys]: _keys })
+  const getKeys = () => {
+    return storage.get(keys).then((r): string[] => r[keys] || [])
+  }
+  const setKeys = (_keys: string[]) => {
+    return storage.set({ [keys]: _keys })
+  }
 
   /* --------- STORAGE OPERATION PROMISE -------- */
 
@@ -171,7 +177,9 @@ export function getBasket<
           try {
             // Compose new values
             const next = createNextValue(prev)
-            const pfxNext = pfxObj(addKeys(next))
+            const pfxNext = pfxObj(next)
+
+            pfxNext[keys] = Object.keys(next)
 
             // Execute set
             return storage.set(pfxNext).then(() => next)
@@ -250,7 +258,9 @@ export function getBasket<
         stream = rxStorage.managed.changeStream
       }
 
-      return stream.pipe(mergeMap(() => get()))
+      return concat(from(get()), stream).pipe(
+        mergeMap(() => get()),
+      )
     },
   }
 }
@@ -296,6 +306,6 @@ export interface StorageArea<
   clear: () => Promise<void>
   /** Emits an object with changed storage keys and StorageChange values  */
   readonly changeStream: Observable<Changes<T>>
-  /** Emits the current storage values when changeStream emits */
+  /** Emits the current storage values immediately and when changeStream emits */
   readonly valueStream: Observable<T>
 }

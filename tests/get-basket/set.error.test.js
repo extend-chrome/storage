@@ -132,7 +132,10 @@ test('one reject does not disrupt other set ops', async () => {
   assert(get.calledWith(keysName))
   assert(get.calledWith([x, y]))
 
-  const setter = pfxObj(addKeys(expected))
+  const setter = {
+    ...raw,
+    'bumble/storage__basket1_keys': ['x', 'y'],
+  }
   assert(set.calledOnce)
   assert(set.calledWith(setter))
 
