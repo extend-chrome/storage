@@ -20,6 +20,7 @@ export default [
     external: [
       'chrome-promise',
       '@bumble/chrome-rxjs',
+      'rxjs',
       'rxjs/operators',
     ],
     plugins: [typescript()],
