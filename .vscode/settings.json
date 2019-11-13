@@ -1,4 +1,5 @@
 {
+  "typescript.tsdk": "node_modules/typescript/lib"
   //   "jestrunner.runOptions": {
   //     "args": ["--no-cache"],
   //     "sourcemaps": "inline",
