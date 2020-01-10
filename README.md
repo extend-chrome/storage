@@ -1,4 +1,23 @@
-# @bumble/storage
+<p align="center">
+  <a href="http://bit.ly/35jbrc5" rel="noopener">
+ <img width=200px height=200px src="https://i.imgur.com/vDjh5SL.png" alt="@bumble/storage logo"></a>
+</p>
+
+<h3 align="center">@bumble/storage</h3>
+
+<div align="center">
+
+[![npm (scoped)](https://img.shields.io/npm/v/@bumble/storage.svg)](http://bit.ly/2KA6cNp)
+[![GitHub last commit](https://img.shields.io/github/last-commit/bumble-org/storage.svg)](http://bit.ly/35jbrc5)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
+[![TypeScript Declarations Included](https://img.shields.io/badge/types-TypeScript-informational)](#typescript)
+
+[![Fiverr: We make Chrome extensions](https://img.shields.io/badge/Fiverr%20-We%20make%20Chrome%20extensions-brightgreen.svg)](http://bit.ly/37mZsfA)
+[![ko-fi](https://img.shields.io/badge/ko--fi-Buy%20me%20a%20coffee-ff5d5b)](http://bit.ly/2qmaQYB)
+
+</div>
+
+---
 
 Manage Chrome Extension storage easily with `@bumble/storage`.
 
@@ -6,13 +25,26 @@ This is a wrapper for the Chrome Extension Storage API that adds promises and fu
 
 > This library is in beta mode. API changes may occur before version 1.0.
 
-# Install
+## Table of Contents
+
+- [Getting Started](#getting_started)
+- [Usage](#usage)
+- [Features](#features)
+- [API](#api)
+
+## Getting started <a name = "getting_started"></a>
+
+You will need to use a bundler like [Rollup](https://rollupjs.org/guide/en/), Parcel, or Webpack to include this library in the build of Chrome extension.
+
+See [`rollup-plugin-chrome-extension`](http://bit.ly/35hLMR8) for an easy way use Rollup to build your Chrome extension!
+
+### Installation
 
 ```sh
 npm i @bumble/storage
 ```
 
-# Usage
+## Usage <a name = "usage"></a>
 
 ```javascript
 import { storage } from '@bumble/storage'
@@ -25,6 +57,10 @@ storage.get(({ friends = [] }) => {
   console.log(`You have ${friends.length} friends.`)
 })
 ```
+
+## Features <a name = "features"></a>
+
+## API <a name = "api"></a>
 
 # Why is this great?
 
