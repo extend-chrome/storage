@@ -1,6 +1,6 @@
 /* eslint-env node */
 
-import typescript from 'rollup-plugin-typescript'
+import typescript from '@rollup/plugin-typescript'
 
 export default [
   {
