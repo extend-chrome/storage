@@ -1,5 +1,4 @@
-.vscode
-lib
-node_modules
-tests/e2e/extension-build
-playground
+.vscode/
+lib/
+node_modules/
+playground/
