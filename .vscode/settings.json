@@ -1,8 +1,9 @@
 {
+  "eslint.codeAction.showDocumentation": {
+    "enable": true
+  },
+  "eslint.enable": true,
+  // "eslint.packageManager": "pnpm",
+  "eslint.validate": ["javascript", "typescript"],
   "typescript.tsdk": "node_modules/typescript/lib"
-  //   "jestrunner.runOptions": {
-  //     "args": ["--no-cache"],
-  //     "sourcemaps": "inline",
-  //     "disableOptimisticBPs": true
-  //   }
 }

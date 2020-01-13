@@ -18,6 +18,7 @@ devDependencies:
   '@typescript-eslint/parser': 2.15.0_eslint@6.8.0+typescript@3.7.4
   delay: 4.3.0
   eslint: 6.8.0
+  eslint-plugin-jest: 23.4.0_eslint@6.8.0+typescript@3.7.4
   husky: 3.1.0
   jest: 24.9.0
   npm-run-all: 4.1.5
@@ -2309,6 +2310,18 @@ packages:
       source-map: 0.6.1
     resolution:
       integrity: sha512-Q8t2YZ+0e0pc7NRVj3B4tSQ9rim1oi4Fh46k2xhJ2qOiEwhQfdjyEQddWdj7ZFaKmU+5104vn1qrcjEPWq+bgQ==
+  /eslint-plugin-jest/23.4.0_eslint@6.8.0+typescript@3.7.4:
+    dependencies:
+      '@typescript-eslint/experimental-utils': 2.15.0_eslint@6.8.0+typescript@3.7.4
+      eslint: 6.8.0
+    dev: true
+    engines:
+      node: '>=8'
+    peerDependencies:
+      eslint: '>=5'
+      typescript: '*'
+    resolution:
+      integrity: sha512-BKZmxpvya0/slJdUr5MJdWvIUNtDySzbAxigr3xMVmyiSUvQLhnLde+8dDM56sFPDSU1pQG9ZqNglMq0jLYVqw==
   /eslint-scope/5.0.0:
     dependencies:
       esrecurse: 4.2.1
@@ -6847,6 +6860,7 @@ specifiers:
   chrome-promise: ^3.0.5
   delay: ^4.3.0
   eslint: ^6.6.0
+  eslint-plugin-jest: ^23.4.0
   husky: ^3.0.9
   jest: ^24.9.0
   npm-run-all: ^4.1.5
