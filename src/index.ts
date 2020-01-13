@@ -1,5 +1,5 @@
 import { useBucket } from './bucket'
-import { AnyObject } from './types'
+import { AnyObject, StorageArea } from './types'
 
 export const storage = {
   local: useBucket<AnyObject>('local', 'local'),
@@ -7,4 +7,4 @@ export const storage = {
   managed: useBucket<AnyObject>('managed', 'managed'),
 }
 
-export { useBucket }
+export { useBucket, StorageArea }

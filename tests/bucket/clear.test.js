@@ -1,5 +1,6 @@
 import assert from 'power-assert'
 import { useBucket } from '../../src/bucket'
+import chrome from 'sinon-chrome'
 
 const { get, set, remove, clear } = chrome.storage.local
 

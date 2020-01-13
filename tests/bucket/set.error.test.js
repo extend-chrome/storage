@@ -1,5 +1,6 @@
 import assert from 'power-assert'
 import { useBucket } from '../../src/bucket'
+import chrome from 'sinon-chrome'
 
 const { get, set, remove, clear } = chrome.storage.local
 
@@ -17,13 +18,7 @@ const xfmKeys = (xfm) => (obj) =>
     {},
   )
 
-const pfxObj = xfmKeys(pfx)
 const unpfxObj = xfmKeys(unpfx)
-
-const addKeys = (obj) => ({
-  ...obj,
-  [keysName]: Object.keys(obj),
-})
 
 const x = pfx('x')
 const y = pfx('y')

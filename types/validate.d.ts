@@ -1,3 +1,1 @@
-export declare const invalidSetterReturn: (
-  r: any,
-) => string | void
+export declare const invalidSetterReturn: (r: any) => string | void;

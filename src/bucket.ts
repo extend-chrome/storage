@@ -1,21 +1,20 @@
 import { storage as rxStorage } from '@bumble/chrome-rxjs'
 import chromep from 'chrome-promise'
 import { chromepApi } from 'chrome-promise/chrome-promise'
-import { Observable, concat, from } from 'rxjs'
-import { mergeMap } from 'rxjs/operators'
+import { concat, from, Observable } from 'rxjs'
+import { filter, map, mergeMap } from 'rxjs/operators'
+import { isKeyof } from './guards'
 import {
-  AsyncSetterFn,
+  AtLeastOne,
   Changes,
   Getter,
-  GetterFn,
-  NativeGetter,
   Setter,
-  SetterFn,
+  StorageArea,
 } from './types'
 import { invalidSetterReturn } from './validate'
 
 export const getStorageArea = (
-  area: string,
+  area: 'local' | 'sync' | 'managed',
 ): chromepApi.storage.StorageArea => {
   switch (area) {
     case 'local':
@@ -34,19 +33,12 @@ export const getStorageArea = (
 
 export function useBucket<
   T extends {
-    [key: string]: any
+    [prop: string]: any
   }
 >(
-  area: string,
+  area: 'local' | 'sync' | 'managed',
   name: string,
-): StorageArea<
-  {
-    [K in keyof T]?: T[K]
-  }
-> {
-  type S = {
-    [K in keyof T]?: T[K]
-  }
+): StorageArea<AtLeastOne<T>> {
   /* ------------- GET STORAGE AREA ------------- */
 
   const storage = getStorageArea(area)
@@ -54,23 +46,28 @@ export function useBucket<
   /* --------------- SETUP BUCKET --------------- */
   const prefix = `bumble/storage__${name}`
   const keys = `${prefix}_keys`
-  const pfx = (k: string) => {
+  const pfx = (k: keyof T) => {
     return `${prefix}--${k}`
   }
   const unpfx = (pk: string) => {
     return pk.replace(`${prefix}--`, '')
   }
 
-  const xfmKeys = (xfm: (x: string) => string) => (
-    obj: any,
-  ): any => {
+  const xfmKeys = (xfm: (x: string) => string) => (obj: {
+    [key: string]: any
+  }): {
+    [key: string]: any
+  } => {
     return Object.keys(obj).reduce(
-      (r, k) => ({ ...r, [xfm(k)]: obj[k] }),
+      (r, k) => ({
+        ...r,
+        [xfm(k)]: obj[k],
+      }),
       {},
     )
   }
 
-  const pfxAry = (ary: string[]) => {
+  const pfxAry = (ary: (keyof T)[]) => {
     return ary.map(pfx)
   }
   const pfxObj = xfmKeys(pfx)
@@ -85,53 +82,68 @@ export function useBucket<
 
   /* --------- STORAGE OPERATION PROMISE -------- */
 
-  let promise: Promise<S> | null = null
+  let promise: Promise<T> | null = null
 
   /* -------------------------------------------- */
   /*                  STORAGE.GET                 */
   /* -------------------------------------------- */
 
-  const coreGet = async (x?: NativeGetter<S>): Promise<S> => {
+  type PartialStore = AtLeastOne<T>
+  const coreGet = async (
+    x?: Getter<PartialStore>,
+  ): Promise<PartialStore> => {
     // Flush pending storage.set ops before
     if (promise) {
       return promise
     }
 
-    let getter
-    if (x === undefined || x === null) {
+    if (typeof x === 'undefined' || x === null) {
       // get all
-      getter = await getKeys().then(pfxAry)
+      const getter = await getKeys().then(pfxAry)
 
-      if (getter.length === 0) {
-        return {}
+      if (!getter.length) {
+        return {} as T
+      } else {
+        const result = await storage.get(getter)
+
+        return unpfxObj(result) as T
       }
-    } else if (typeof x === 'string') {
-      getter = pfx(x)
+    } else if (isKeyof<T>(x)) {
+      // string getter, get one
+      const getter = pfx(x)
+      const result = await storage.get(getter)
+
+      return unpfxObj(result) as PartialStore
     } else if (Array.isArray(x)) {
-      getter = pfxAry(x)
+      // string array getter, get each
+      const getter = pfxAry(x)
+      const result = await storage.get(getter)
+
+      return unpfxObj(result) as PartialStore
     } else {
-      getter = pfxObj(x)
+      // object getter, get each key
+      const getter = pfxObj(x)
+      const result = await storage.get(getter)
+
+      return unpfxObj(result) as PartialStore
     }
-
-    const result: S = (await storage.get(getter)) as S
-
-    return unpfxObj(result)
   }
 
-  const get = (getter?: Getter<S>): Promise<S> => {
+  const get = (getter?: Getter<PartialStore> | null) => {
     if (getter === null || getter === undefined) {
       return coreGet()
     }
 
-    const gtype = typeof getter
-
-    if (gtype === 'string' || gtype === 'object') {
-      // Rely on TS+ChromeAPI to catch bad getter arrays
-      return coreGet(getter as NativeGetter<S>)
-    } else if (gtype === 'function') {
-      return coreGet().then(getter as GetterFn<S>)
-    } else {
-      throw new TypeError('Unexpected argument type: ' + gtype)
+    switch (typeof getter) {
+      case 'string':
+      case 'object':
+        return coreGet(getter)
+      case 'function':
+        return coreGet().then(getter)
+      default:
+        throw new TypeError(
+          `Unexpected argument type: ${typeof getter}`,
+        )
     }
   }
 
@@ -139,15 +151,20 @@ export function useBucket<
   /*                  STORAGE.SET                 */
   /* -------------------------------------------- */
 
-  const _createNextValue = (x: S): S => x
+  const _createNextValue = (x: PartialStore): PartialStore => x
   let createNextValue = _createNextValue
 
-  const set = (arg: Setter<S>): Promise<S> =>
+  type SetterFn = (
+    prev: PartialStore,
+  ) => AtLeastOne<PartialStore>
+  const set = (
+    arg: Setter<PartialStore>,
+  ): Promise<PartialStore> =>
     new Promise((resolve, reject) => {
-      let setter: SetterFn<S>
+      let setter: SetterFn
       if (typeof arg === 'function') {
         setter = (prev) => {
-          const result = (arg as SetterFn<S>)(prev)
+          const result = (arg as SetterFn)(prev)
           const errorMessage = invalidSetterReturn(result)
 
           if (errorMessage) {
@@ -183,8 +200,6 @@ export function useBucket<
 
             // Execute set
             return storage.set(pfxNext).then(() => next)
-          } catch (error) {
-            throw error
           } finally {
             // Clean up after a set operation
             createNextValue = _createNextValue
@@ -217,6 +232,26 @@ export function useBucket<
       .then(_setKeys)
   }
 
+  const changeStream: Observable<Changes<
+    PartialStore
+  >> = rxStorage[area].changeStream.pipe(
+    mergeMap(async (changes) => {
+      const keys = await getKeys()
+
+      return Object.entries(changes).filter(([key]) =>
+        keys.includes(key),
+      )
+    }),
+    filter((changes) => !!changes.length),
+    map(
+      (changes) =>
+        changes.reduce(
+          (r, [k, e]) => ({ ...r, [k]: e }),
+          {},
+        ) as Changes<PartialStore>,
+    ),
+  )
+
   return {
     set,
     get,
@@ -236,76 +271,14 @@ export function useBucket<
     },
 
     get changeStream() {
-      let stream: Observable<any>
-      if (area === 'local') {
-        stream = rxStorage.local.changeStream
-      } else if (area === 'sync') {
-        stream = rxStorage.sync.changeStream
-      } else {
-        stream = rxStorage.managed.changeStream
-      }
-
-      return stream as Observable<Changes<S>>
+      return changeStream
     },
 
     get valueStream() {
-      let stream: Observable<any>
-      if (area === 'local') {
-        stream = rxStorage.local.changeStream
-      } else if (area === 'sync') {
-        stream = rxStorage.sync.changeStream
-      } else {
-        stream = rxStorage.managed.changeStream
-      }
-
-      return concat(from(get()), stream).pipe(
-        mergeMap(() => get()),
+      return concat(
+        from(get()),
+        changeStream.pipe(mergeMap(() => get())),
       )
     },
   }
-}
-
-export interface StorageArea<
-  T extends {
-    [key: string]: any
-  }
-> {
-  /**
-   * Get a value or values in the storage area using a key name, a key name array, or a getter function.
-   *
-   * A getter function receives a StorageValues object and can return anything.
-   */
-  get: (getter?: Getter<T>) => Promise<T>
-  /**
-   * Set a value or values in the storage area using an object with keys and default values, or a setter function.
-   *
-   * A setter function receives a StorageValues object and must return a StorageValues object. A setter function cannot be an async function.
-   *
-   * Synchronous calls to set will be composed into a single setter function for performance and reliability.
-   */
-  set: (setter: Setter<T>) => Promise<T>
-  /**
-   * Set a value or values in the storage area using an async setter function.
-   *
-   * An async setter function should return a Promise that contains a StorageValues object.
-   *
-   * `StorageArea.update` should be used if an async setter function is required. Syncronous calls to set will be more performant than to update.
-   *
-   * ```javascript
-   * storage.local.update(async ({ text }) => {
-   *   const result = await asyncApiRequest(text)
-   *
-   *   return { text: result }
-   * })
-   * ```
-   */
-  update: (asyncSetterFn: AsyncSetterFn<T>) => Promise<T>
-  /** Remove a key from the storage area */
-  remove: (query: string) => Promise<void>
-  /** Clear the storage area */
-  clear: () => Promise<void>
-  /** Emits an object with changed storage keys and StorageChange values  */
-  readonly changeStream: Observable<Changes<T>>
-  /** Emits the current storage values immediately and when changeStream emits */
-  readonly valueStream: Observable<T>
 }
