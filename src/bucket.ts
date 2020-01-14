@@ -8,7 +8,6 @@ import {
   AtLeastOne,
   Changes,
   Getter,
-  Setter,
   StorageArea,
 } from './types'
 import { invalidSetterReturn } from './validate'
@@ -37,14 +36,13 @@ export function useBucket<
   }
 >(
   area: 'local' | 'sync' | 'managed',
-  name: string,
-): StorageArea<AtLeastOne<T>> {
+  bucketName: string,
+): StorageArea<T> {
   /* ------------- GET STORAGE AREA ------------- */
-
   const storage = getStorageArea(area)
 
   /* --------------- SETUP BUCKET --------------- */
-  const prefix = `bumble/storage__${name}`
+  const prefix = `bumble/storage__${bucketName}`
   const keys = `${prefix}_keys`
   const pfx = (k: keyof T) => {
     return `${prefix}--${k}`
@@ -73,9 +71,12 @@ export function useBucket<
   const pfxObj = xfmKeys(pfx)
   const unpfxObj = xfmKeys(unpfx)
 
-  const getKeys = () => {
-    return storage.get(keys).then((r): string[] => r[keys] || [])
+  const getKeys = async () => {
+    const result = await storage.get(keys)
+
+    return result[keys] || []
   }
+
   const setKeys = (_keys: string[]) => {
     return storage.set({ [keys]: _keys })
   }
@@ -89,9 +90,7 @@ export function useBucket<
   /* -------------------------------------------- */
 
   type PartialStore = AtLeastOne<T>
-  const coreGet = async (
-    x?: Getter<PartialStore>,
-  ): Promise<PartialStore> => {
+  const coreGet = async (x?: Getter<PartialStore>) => {
     // Flush pending storage.set ops before
     if (promise) {
       return promise
@@ -99,7 +98,8 @@ export function useBucket<
 
     if (typeof x === 'undefined' || x === null) {
       // get all
-      const getter = await getKeys().then(pfxAry)
+      const keys = await getKeys()
+      const getter = pfxAry(keys)
 
       if (!getter.length) {
         return {} as T
@@ -129,17 +129,19 @@ export function useBucket<
     }
   }
 
-  const get = (getter?: Getter<PartialStore> | null) => {
+  function get(getter?: Getter<PartialStore> | null) {
     if (getter === null || getter === undefined) {
-      return coreGet()
+      return coreGet() as Promise<T>
     }
 
     switch (typeof getter) {
       case 'string':
       case 'object':
-        return coreGet(getter)
+        return coreGet(getter) as Promise<PartialStore>
       case 'function':
-        return coreGet().then(getter)
+        return coreGet().then(getter) as Promise<
+          ReturnType<typeof getter>
+        >
       default:
         throw new TypeError(
           `Unexpected argument type: ${typeof getter}`,
@@ -157,9 +159,7 @@ export function useBucket<
   type SetterFn = (
     prev: PartialStore,
   ) => AtLeastOne<PartialStore>
-  const set = (
-    arg: Setter<PartialStore>,
-  ): Promise<PartialStore> =>
+  const set = (arg: SetterFn | T): Promise<PartialStore> =>
     new Promise((resolve, reject) => {
       let setter: SetterFn
       if (typeof arg === 'function') {

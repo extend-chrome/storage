@@ -1,7 +1,5 @@
 import { Observable } from 'rxjs'
 
-export type AnyObject = Record<string, any>
-
 export type AtLeastOne<
   T,
   U = { [K in keyof T]: Pick<T, K> }
@@ -12,8 +10,6 @@ export type Getter<T> =
   | (keyof T)[]
   | ((values: T) => any)
   | AtLeastOne<T>
-
-export type Setter<T> = ((prev: T) => T) | T
 
 export type Changes<T> = {
   [K in keyof T]?: {
@@ -28,12 +24,12 @@ export interface StorageArea<T extends object> {
    *
    * A getter function receives a StorageValues object and can return anything.
    */
-  get(): Promise<T>
+  get(getter?: undefined): Promise<T>
   get(getter: null): Promise<T>
-  get(getter: keyof T): Promise<AtLeastOne<T>>
-  get(getter: (keyof T)[]): Promise<AtLeastOne<T>>
+  get(getter: keyof T): Promise<Partial<T>>
+  get(getter: string[]): Promise<Partial<T>>
   get<K>(getter: (values: T) => K): Promise<K>
-  get<K = AtLeastOne<T>>(getter: K): Promise<K>
+  get<K extends AtLeastOne<T>>(getter: K): Promise<K>
   /**
    * Set a value or values in the storage area using an object with keys and default values, or a setter function.
    *
@@ -41,7 +37,8 @@ export interface StorageArea<T extends object> {
    *
    * Synchronous calls to set will be composed into a single setter function for performance and reliability.
    */
-  set: (setter: Setter<T>) => Promise<T>
+  set(setter: AtLeastOne<T>): Promise<T>
+  set<K>(setter: (prev: T) => AtLeastOne<T>): Promise<T>
   /**
    * Set a value or values in the storage area using an async setter function.
    *
@@ -59,7 +56,7 @@ export interface StorageArea<T extends object> {
    */
   update: (asyncSetter: (values: T) => Promise<T>) => Promise<T>
   /** Remove a key from the storage area */
-  remove: (query: string) => Promise<void>
+  remove: (query: string | string[]) => Promise<void>
   /** Clear the storage area */
   clear: () => Promise<void>
   /** Emits an object with changed storage keys and StorageChange values  */
