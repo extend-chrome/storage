@@ -1,28 +1,27 @@
 import { Observable } from 'rxjs';
-export declare type AnyObject = Record<string, any>;
+export declare type AreaName = 'local' | 'sync' | 'managed';
 export declare type AtLeastOne<T, U = {
     [K in keyof T]: Pick<T, K>;
 }> = Partial<T> & U[keyof U];
 export declare type Getter<T> = keyof T | (keyof T)[] | ((values: T) => any) | AtLeastOne<T>;
-export declare type Setter<T> = ((prev: T) => T) | T;
 export declare type Changes<T> = {
     [K in keyof T]?: {
         oldValue: T[K];
         newValue: T[K];
     };
 };
-export interface StorageArea<T extends object> {
+export interface Bucket<T extends object> {
     /**
      * Get a value or values in the storage area using a key name, a key name array, or a getter function.
      *
      * A getter function receives a StorageValues object and can return anything.
      */
-    get(): Promise<T>;
+    get(getter?: undefined): Promise<T>;
     get(getter: null): Promise<T>;
-    get(getter: keyof T): Promise<AtLeastOne<T>>;
-    get(getter: (keyof T)[]): Promise<AtLeastOne<T>>;
+    get(getter: keyof T): Promise<Partial<T>>;
+    get(getter: string[]): Promise<Partial<T>>;
     get<K>(getter: (values: T) => K): Promise<K>;
-    get<K = AtLeastOne<T>>(getter: K): Promise<K>;
+    get<K extends AtLeastOne<T>>(getter: K): Promise<K>;
     /**
      * Set a value or values in the storage area using an object with keys and default values, or a setter function.
      *
@@ -30,7 +29,8 @@ export interface StorageArea<T extends object> {
      *
      * Synchronous calls to set will be composed into a single setter function for performance and reliability.
      */
-    set: (setter: Setter<T>) => Promise<T>;
+    set(setter: AtLeastOne<T>): Promise<T>;
+    set<K>(setter: (prev: T) => AtLeastOne<T>): Promise<T>;
     /**
      * Set a value or values in the storage area using an async setter function.
      *
@@ -48,7 +48,7 @@ export interface StorageArea<T extends object> {
      */
     update: (asyncSetter: (values: T) => Promise<T>) => Promise<T>;
     /** Remove a key from the storage area */
-    remove: (query: string) => Promise<void>;
+    remove: (query: string | string[]) => Promise<void>;
     /** Clear the storage area */
     clear: () => Promise<void>;
     /** Emits an object with changed storage keys and StorageChange values  */

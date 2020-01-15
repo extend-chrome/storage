@@ -1,6 +1,13 @@
 import { chromepApi } from 'chrome-promise/chrome-promise';
-import { AtLeastOne, StorageArea } from './types';
-export declare const getStorageArea: (area: "sync" | "local" | "managed") => chromepApi.storage.StorageArea;
-export declare function useBucket<T extends {
+import { Bucket, AreaName } from './types';
+export declare const getStorageArea: (area: AreaName) => chromepApi.storage.StorageArea;
+/**
+ * Create a bucket (synthetic storage area).
+ *
+ * @param {string} bucketName Must be a id for each bucket.
+ * @param {string} [areaName = 'local'] The name of the storage area to use.
+ * @returns {Bucket} Returns a bucket.
+ */
+export declare function getBucket<T extends {
     [prop: string]: any;
-}>(area: 'local' | 'sync' | 'managed', name: string): StorageArea<AtLeastOne<T>>;
+}>(bucketName: string, areaName?: AreaName): Bucket<T>;

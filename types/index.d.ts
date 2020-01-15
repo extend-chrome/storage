@@ -1,14 +1,17 @@
-import { useBucket } from './bucket';
-import { StorageArea } from './types';
+import { getBucket } from './bucket';
+/**
+ * Buckets for each storage area.
+ */
 export declare const storage: {
-    local: StorageArea<import("./types").AtLeastOne<Record<string, any>, {
-        [x: string]: Pick<Record<string, any>, string>;
-    }>>;
-    sync: StorageArea<import("./types").AtLeastOne<Record<string, any>, {
-        [x: string]: Pick<Record<string, any>, string>;
-    }>>;
-    managed: StorageArea<import("./types").AtLeastOne<Record<string, any>, {
-        [x: string]: Pick<Record<string, any>, string>;
-    }>>;
+    local: import("./types").Bucket<Record<string, any>>;
+    sync: import("./types").Bucket<Record<string, any>>;
+    managed: import("./types").Bucket<Record<string, any>>;
 };
-export { useBucket, StorageArea };
+export * from './types';
+export { getBucket };
+/**
+ * Deprecated. Use `getBucket`.
+ */
+export declare const useBucket: (areaName: import("./types").AreaName, bucketName: string) => import("./types").Bucket<{
+    [prop: string]: any;
+}>;

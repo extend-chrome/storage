@@ -1,17 +1,10 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
     "declaration": true,
     "declarationDir": "types",
-    "emitDeclarationOnly": true,
-    "module": "es2015",
-    "moduleResolution": "node",
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "sourceMap": true,
-    "strict": true,
-    "target": "es2017",
-    "lib": ["es2017", "dom", "esnext.array"]
+    "emitDeclarationOnly": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["playground", "node_modules", "lib"]
 }

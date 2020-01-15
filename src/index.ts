@@ -1,5 +1,4 @@
 import { getBucket } from './bucket'
-import { Bucket } from './types'
 
 /**
  * Buckets for each storage area.
@@ -10,7 +9,9 @@ export const storage = {
   managed: getBucket<Record<string, any>>('managed', 'managed'),
 }
 
-export { getBucket, Bucket }
+// Workaround for @rollup/plugin-typescript
+export * from './types'
+export { getBucket }
 
 /**
  * Deprecated. Use `getBucket`.
@@ -25,3 +26,4 @@ export const useBucket = (
 
   return getBucket(bucketName, areaName)
 }
+
