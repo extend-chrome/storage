@@ -25,8 +25,8 @@
     "release": "git push && npm publish",
     "start": "run-p build:watch",
     "test": "jest",
-    "preversion": "run-s test",
-    "postversion": "run-s build:pro build:types release"
+    "preversion": "run-s test build:pro build:types",
+    "postversion": "run-s release"
   },
   "dependencies": {
     "@bumble/chrome-rxjs": "^0.10.1",
