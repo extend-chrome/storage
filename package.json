@@ -22,11 +22,11 @@
     "format": "run-s format:*",
     "format:package": "sort-package-json && git add package.json",
     "format:staged": "pretty-quick --staged",
-    "release": "git push && npm publish",
+    "release:full": "git push && npm publish",
+    "release:beta": "git push && npm publish --tag beta",
     "start": "run-p build:watch",
     "test": "jest",
-    "preversion": "run-s test build:pro build:types",
-    "postversion": "run-s release"
+    "preversion": "run-s test build:pro build:types"
   },
   "dependencies": {
     "@bumble/chrome-rxjs": "^0.10.1",
