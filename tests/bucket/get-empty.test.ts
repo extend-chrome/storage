@@ -1,5 +1,5 @@
 import cases from 'jest-in-case'
-import { useBucket } from '../../src/bucket'
+import { getBucket } from '../../src/bucket'
 import {
   anyFn,
   Bucket,
@@ -30,7 +30,7 @@ cases<{
       }
     })
 
-    const bucket = useBucket<Bucket>('local', bucketName)
+    const bucket = getBucket<Bucket>(bucketName)
     const result = await bucket.get(getter)
 
     expect(result).toEqual(expected)

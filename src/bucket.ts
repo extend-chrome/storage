@@ -8,12 +8,13 @@ import {
   AtLeastOne,
   Changes,
   Getter,
-  StorageArea,
+  Bucket,
+  AreaName,
 } from './types'
 import { invalidSetterReturn } from './validate'
 
 export const getStorageArea = (
-  area: 'local' | 'sync' | 'managed',
+  area: AreaName,
 ): chromepApi.storage.StorageArea => {
   switch (area) {
     case 'local':
@@ -30,16 +31,22 @@ export const getStorageArea = (
   }
 }
 
-export function useBucket<
+/**
+ * Create a bucket (synthetic storage area).
+ *
+ * @param {string} bucketName Must be a id for each bucket.
+ * @param {string} [areaName = 'local'] The name of the storage area to use.
+ * @returns {Bucket} Returns a bucket.
+ */
+export function getBucket<
   T extends {
     [prop: string]: any
   }
->(
-  area: 'local' | 'sync' | 'managed',
-  bucketName: string,
-): StorageArea<T> {
+>(bucketName: string, areaName?: AreaName): Bucket<T> {
   /* ------------- GET STORAGE AREA ------------- */
-  const storage = getStorageArea(area)
+  if (!areaName) areaName = 'local' as const
+  const _areaName: AreaName = areaName
+  const storage = getStorageArea(_areaName)
 
   /* --------------- SETUP BUCKET --------------- */
   const prefix = `bumble/storage__${bucketName}`
@@ -234,7 +241,7 @@ export function useBucket<
 
   const changeStream: Observable<Changes<
     PartialStore
-  >> = rxStorage[area].changeStream.pipe(
+  >> = rxStorage[_areaName].changeStream.pipe(
     mergeMap(async (changes) => {
       const keys = await getKeys()
 

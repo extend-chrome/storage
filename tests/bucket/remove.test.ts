@@ -1,5 +1,5 @@
 import cases from 'jest-in-case'
-import { useBucket } from '../../src/bucket'
+import { getBucket } from '../../src/bucket'
 import {
   anyFn,
   Bucket,
@@ -23,7 +23,7 @@ cases<{
 }>(
   'each remover type',
   async ({ remover, rawRemover, newKeys }) => {
-    const bucket = useBucket<Bucket>('local', bucketName)
+    const bucket = getBucket<Bucket>(bucketName)
 
     await bucket.remove(remover)
 
@@ -60,7 +60,7 @@ cases<{
 cases<{ remover: any; type: any }>(
   'each invalid remover type',
   async ({ remover, type }) => {
-    const bucket = useBucket<Bucket>('local', bucketName)
+    const bucket = getBucket<Bucket>(bucketName)
 
     expect(() => bucket.remove(remover)).toThrow(
       new TypeError(`Unexpected argument type: ${type}`),

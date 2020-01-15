@@ -1,4 +1,4 @@
-import { useBucket } from '../../src/bucket'
+import { getBucket } from '../../src/bucket'
 import {
   clear,
   get,
@@ -16,7 +16,7 @@ beforeEach(() => {
 })
 
 test('clear', async () => {
-  const bucket = useBucket<Bucket>('local', bucketName)
+  const bucket = getBucket<Bucket>(bucketName)
 
   await bucket.clear()
 

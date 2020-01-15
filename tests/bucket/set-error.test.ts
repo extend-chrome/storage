@@ -1,6 +1,6 @@
 import cases from 'jest-in-case'
 
-import { useBucket } from '../../src/bucket'
+import { getBucket } from '../../src/bucket'
 import {
   clear,
   get,
@@ -24,7 +24,7 @@ cases<{
   async ({ returnValue }) => {
     expect.assertions(1)
 
-    const bucket = useBucket<Bucket>('local', bucketName)
+    const bucket = getBucket<Bucket>(bucketName)
 
     return bucket
       .set(() => returnValue)
@@ -51,7 +51,7 @@ cases<{
 )
 
 test('one reject does not disrupt other set ops', async () => {
-  const bucket = useBucket<Bucket>('local', bucketName)
+  const bucket = getBucket<Bucket>(bucketName)
 
   const setFn = ({ x }: Bucket) => ({ x: x + '4' })
   const raw = { [x]: '1234', [y]: values[y] }

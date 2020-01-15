@@ -1,5 +1,5 @@
 import cases from 'jest-in-case'
-import { useBucket } from '../../src/bucket'
+import { getBucket } from '../../src/bucket'
 import {
   anyFn,
   Bucket,
@@ -27,7 +27,7 @@ cases<{
 }>(
   'each getter type',
   async ({ getter, rawGetter, got, calls, expected }) => {
-    const bucket = useBucket<Bucket>('local', bucketName)
+    const bucket = getBucket<Bucket>(bucketName)
 
     get.mockImplementation((getter, cb) => {
       if (getter === keysName) {

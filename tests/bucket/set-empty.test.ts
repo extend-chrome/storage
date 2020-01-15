@@ -1,5 +1,5 @@
 import cases from 'jest-in-case'
-import { useBucket } from '../../src/bucket'
+import { getBucket } from '../../src/bucket'
 import {
   anyFn,
   Bucket,
@@ -26,7 +26,7 @@ cases<{
 }>(
   'each setter type',
   async ({ setter, setterFn, rawSetter }) => {
-    const bucket = useBucket<Bucket>('local', bucketName)
+    const bucket = getBucket<Bucket>(bucketName)
     const result = await bucket.set(setterFn || setter)
 
     expect(remove).not.toBeCalled()

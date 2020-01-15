@@ -1,5 +1,7 @@
 import { Observable } from 'rxjs'
 
+export type AreaName = 'local' | 'sync' | 'managed'
+
 export type AtLeastOne<
   T,
   U = { [K in keyof T]: Pick<T, K> }
@@ -18,7 +20,7 @@ export type Changes<T> = {
   }
 }
 
-export interface StorageArea<T extends object> {
+export interface Bucket<T extends object> {
   /**
    * Get a value or values in the storage area using a key name, a key name array, or a getter function.
    *
