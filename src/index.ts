@@ -16,7 +16,7 @@ export { getBucket }
 /**
  * Deprecated. Use `getBucket`.
  */
-export const useBucket = (
+export const useBucket = <T extends object>(
   areaName: 'local' | 'sync' | 'managed',
   bucketName: string,
 ) => {
@@ -24,6 +24,6 @@ export const useBucket = (
     '@bumble/storage: useBucket is deprecated. Use getBucket instead.',
   )
 
-  return getBucket(bucketName, areaName)
+  return getBucket<T>(bucketName, areaName)
 }
 

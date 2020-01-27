@@ -12,6 +12,4 @@ export { getBucket };
 /**
  * Deprecated. Use `getBucket`.
  */
-export declare const useBucket: (areaName: import("./types").AreaName, bucketName: string) => import("./types").Bucket<{
-    [prop: string]: any;
-}>;
+export declare const useBucket: <T extends object>(areaName: import("./types").AreaName, bucketName: string) => import("./types").Bucket<T>;
