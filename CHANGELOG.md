@@ -6,6 +6,16 @@
 
 - `useBucket`: This export will be removed in version 1.0.0.
 
+## [0.5.1] - 2020-01-27
+
+### Fixed
+
+- Fixed `getBucket` types.
+
+### Removed
+
+- Removed `getBucket` deprecation warning log.
+
 ## [0.5.0] - 2020-01-15
 
 ### Added
