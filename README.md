@@ -27,9 +27,6 @@ promises and functional set transactions similar to the React
 use the Chrome Storage API to share and manage state between
 different contexts in a Chrome Extension.
 
-> This library is in beta until version 1.0.0. The API may change
-> between minor versions.
-
 # Table of Contents
 
 - [Getting Started](#getting_started)
