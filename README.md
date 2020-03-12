@@ -34,6 +34,7 @@ different contexts in a Chrome Extension.
 
 - [Getting Started](#getting_started)
 - [Usage](#usage)
+  <!-- - [Testing with Jest](https://github.com/bumble-org/storage/jest/README.md) -->
 - [Features](#features)
 - [API](#api)
   - [interface Bucket](#api-bucket)
