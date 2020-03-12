@@ -95,7 +95,6 @@ const ts = {
     ...rules,
     'no-restricted-globals': [
       1,
-      'jest',
       'it',
       'test',
       'expect',

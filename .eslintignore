@@ -3,3 +3,5 @@
 /docs
 /e2e
 /types
+/jest
+/hooks
