@@ -1,0 +1,5 @@
+{
+  "main": "./jest-mock-cjs.js",
+  "module": "./jest-mock-esm.js",
+  "types": "../types/jest-mock.d.ts"
+}

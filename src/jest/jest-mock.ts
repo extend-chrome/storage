@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Subject } from 'rxjs'
-import { Bucket, Changes, getBucket as GetBucket, useBucket as UseBucket } from '.'
+import { Bucket, Changes } from '..'
 
 /**
  * This module is a pre-mocked version of storage for use with Jest.
@@ -27,7 +28,10 @@ export interface MockBucket<T extends object> extends Bucket<T> {
   valueStream: Subject<T>
 }
 
-export const getBucket: typeof GetBucket = <T>() => ({
+export const getBucket = <T extends object>(
+  bucketName: string,
+  areaName?: string,
+): MockBucket<T> => ({
   get: jest.fn(),
   set: jest.fn(),
   update: jest.fn(),
@@ -37,9 +41,9 @@ export const getBucket: typeof GetBucket = <T>() => ({
   valueStream: new Subject<T>(),
 })
 
-export const useBucket: typeof UseBucket = (
-  areaName,
-  bucketName,
+export const useBucket = (
+  areaName: string,
+  bucketName: string,
 ) => getBucket(bucketName, areaName)
 
 /**

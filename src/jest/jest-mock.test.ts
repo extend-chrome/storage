@@ -1,5 +1,5 @@
 import { Subject } from 'rxjs'
-import { getBucket, storage } from '.'
+import { getBucket, storage } from './jest-mock'
 import { MockBucket } from './jest-mock'
 
 jest.mock('./index.ts')

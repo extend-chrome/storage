@@ -18,7 +18,7 @@ export default [
     plugins,
   },
   {
-    input: 'src/jest-mock.ts',
+    input: 'src/jest/jest-mock.ts',
     output: outputs('jest/jest-mock'),
     external,
     plugins,
