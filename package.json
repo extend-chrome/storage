@@ -14,16 +14,17 @@
     "jest"
   ],
   "scripts": {
-    "build": "run-s build:clean build:pro build:types",
-    "build:clean": "rm -rf lib types hooks jest",
+    "prebuild": "rm -rf lib types hooks jest",
+    "build": "run-p build:pro build:types build:copy",
     "build:dev": "rollup -c --environment NODE_ENV:development",
     "build:pro": "rollup -c --environment NODE_ENV:production",
     "build:types": "tsc -p tsconfig.d.json",
-    "build:watch": "run-p build:watch:*",
-    "build:watch:rollup": "npm run build:dev -- -w",
-    "build:watch:tsc": "tsc -b tsconfig.d.json -w",
-    "prepublishOnly": "run-s build",
-    "start": "run-p build:watch",
+    "build:copy": "copyfiles -f src/jest/package.json jest",
+    "prepublishOnly": "npm run build",
+    "postpublish": "rm -rf node_modules package-lock.json && pnpm i",
+    "start": "run-p start:*",
+    "start:rollup": "npm run build:dev -- -w",
+    "start:tsc": "tsc -b tsconfig.d.json -w",
     "test": "jest"
   },
   "dependencies": {
@@ -46,6 +47,7 @@
     "@types/react-dom": "^16.9.5",
     "@typescript-eslint/eslint-plugin": "^2.23.0",
     "@typescript-eslint/parser": "^2.23.0",
+    "copyfiles": "^2.2.0",
     "delay": "^4.3.0",
     "eslint": "^6.8.0",
     "eslint-plugin-jest": "^23.8.2",
