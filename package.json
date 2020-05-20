@@ -25,6 +25,7 @@
     "start": "run-p start:*",
     "start:rollup": "npm run build:dev -- -w",
     "start:tsc": "tsc -b tsconfig.d.json -w",
+    "pretest": "npm run build",
     "test": "jest"
   },
   "dependencies": {
