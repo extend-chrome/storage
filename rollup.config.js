@@ -8,7 +8,11 @@ const external = Object.keys(dependencies).concat(
   'rxjs/operators',
 )
 
-const plugins = [typescript()]
+const plugins = [
+  typescript({
+    noEmitOnError: false,
+  }),
+]
 
 export default [
   {
