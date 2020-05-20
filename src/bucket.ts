@@ -1,15 +1,14 @@
-import { storage as rxStorage } from '@bumble/chrome-rxjs'
 import chromep from 'chrome-promise'
 import { chromepApi } from 'chrome-promise/chrome-promise'
-import { concat, from, Observable } from 'rxjs'
+import { concat, from, fromEventPattern, Observable } from 'rxjs'
 import { filter, map, mergeMap } from 'rxjs/operators'
-import { isKeyof } from './guards'
+import { isKeyof, isNonNull } from './guards'
 import {
+  AreaName,
   AtLeastOne,
+  Bucket,
   Changes,
   Getter,
-  Bucket,
-  AreaName,
 } from './types'
 import { invalidSetterReturn } from './validate'
 
@@ -239,25 +238,38 @@ export function getBucket<
       .then(_setKeys)
   }
 
-  const changeStream: Observable<Changes<
-    PartialStore
-  >> = rxStorage[_areaName].changeStream.pipe(
-    mergeMap(async (changes) => {
-      const keys = await getKeys()
+  const nativeChange$ = fromEventPattern<
+    [{ [key: string]: chrome.storage.StorageChange }, string]
+  >(
+    (handler) => {
+      chrome.storage.onChanged.addListener(handler)
+    },
+    (handler) => {
+      chrome.storage.onChanged.removeListener(handler)
+    },
+  )
 
-      return Object.entries(changes).filter(([key]) =>
-        keys.includes(key),
+  const changeStream = nativeChange$.pipe(
+    filter(([changes, area]) => {
+      return (
+        area === areaName &&
+        Object.keys(changes).some((k) => k.startsWith(prefix))
       )
     }),
-    filter((changes) => !!changes.length),
-    map(
-      (changes) =>
-        changes.reduce(
-          (r, [k, e]) => ({ ...r, [k]: e }),
-          {},
-        ) as Changes<PartialStore>,
-    ),
-  )
+    map(([changes]) => {
+      const bucketChanges = Object.keys(changes).filter(
+        (k) => k.startsWith(prefix) && k !== keys,
+      )
+
+      return bucketChanges.length
+        ? bucketChanges.reduce(
+            (r, k) => ({ ...r, [unpfx(k)]: changes[k] }),
+            {} as typeof changes,
+          )
+        : undefined
+    }),
+    filter(isNonNull),
+  ) as Observable<Changes<PartialStore>>
 
   return {
     set,

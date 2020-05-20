@@ -9,7 +9,10 @@
       "group": {
         "kind": "build",
         "isDefault": true
-      }
+      },
+      "problemMatcher": [],
+      "label": "npm: start",
+      "detail": "run-p start:rollup"
     }
   ]
 }
