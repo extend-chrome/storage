@@ -9,12 +9,12 @@ import { Bucket, Changes } from '..'
  *
  * ```javascript
  * // __mocks__/storage.js
- * module.exports = require('@bumble/storage/jest')
+ * module.exports = require('@extend-chrome/storage/jest')
  * ```
  *
  * ```typescript
  * // __mocks__/storage.ts
- * export * from '@bumble/storage/jest'
+ * export * from '@extend-chrome/storage/jest'
  * ```
  */
 

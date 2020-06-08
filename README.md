@@ -1,14 +1,14 @@
 <p align="center">
   <a href="http://bit.ly/35jbrc5" rel="noopener">
- <img width=200px height=200px src="https://i.imgur.com/vDjh5SL.png" alt="@bumble/storage logo"></a>
+ <img width=200px height=200px src="https://imgur.com/2BRBk4K.png" alt="@extend-chrome/storage logo"></a>
 </p>
 
-<h3 align="center">@bumble/storage</h3>
+<h3 align="center">@extend-chrome/storage</h3>
 
 <div align="center">
 
-[![npm (scoped)](https://img.shields.io/npm/v/@bumble/storage.svg)](http://bit.ly/2KA6cNp)
-[![GitHub last commit](https://img.shields.io/github/last-commit/bumble-org/storage.svg)](http://bit.ly/35jbrc5)
+[![npm (scoped)](https://img.shields.io/npm/v/@extend-chrome/storage.svg)](http://bit.ly/2KA6cNp)
+[![GitHub last commit](https://img.shields.io/github/last-commit/extend-chrome/storage.svg)](http://bit.ly/35jbrc5)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 [![TypeScript Declarations Included](https://img.shields.io/badge/types-TypeScript-informational)](#typescript)
 
@@ -19,7 +19,9 @@
 
 ---
 
-Manage Chrome Extension storage easily with `@bumble/storage`.
+> Previously `@bumble/storage`, we've migrated to a new organization with a better name!
+
+Manage Chrome Extension storage easily with `@extend-chrome/storage`.
 
 This is a wrapper for the Chrome Extension Storage API that adds
 promises and functional set transactions similar to the React
@@ -31,7 +33,7 @@ different contexts in a Chrome Extension.
 
 - [Getting Started](#getting_started)
 - [Usage](#usage)
-  <!-- - [Testing with Jest](https://github.com/bumble-org/storage/jest/README.md) -->
+  <!-- - [Testing with Jest](https://github.com/extend-chrome/storage/jest/README.md) -->
 - [Features](#features)
 - [API](#api)
   - [interface Bucket](#api-bucket)
@@ -55,7 +57,7 @@ an easy way to use Rollup to build your Chrome extension!
 ## Installation
 
 ```sh
-npm i @bumble/storage
+npm i @extend-chrome/storage
 ```
 
 # Usage <a name = "usage"></a>
@@ -72,7 +74,7 @@ Add the `storage` permission to your `manifest.json` file.
 Take your Chrome extension to another level! 🚀
 
 ```javascript
-import { storage } from '@bumble/storage'
+import { storage } from '@extend-chrome/storage'
 
 // Set storage using an object
 storage.set({ friends: ['Jack'] })
@@ -110,7 +112,7 @@ While the Chrome Storage API is async, it uses callbacks. This
 brings a whole world of difficulty into the developer experience
 that have been solved with Promises.
 
-`@bumble/storage` solves both of these problems. Every method
+`@extend-chrome/storage` solves both of these problems. Every method
 returns a Promise and both `get` and `set` can take a function
 that provides current storage values, similar to React's
 `this.setState`.
@@ -123,7 +125,7 @@ type of data that area will manage.
 <!-- TODO: Convert code block to GIF -->
 
 ```typescript
-import { getBucket } from '@bumble/storage'
+import { getBucket } from '@extend-chrome/storage'
 
 interface Store {
   a: string
@@ -191,7 +193,7 @@ Default storage areas are included, so you can just import
 storage area.
 
 ```javascript
-import { storage } from '@bumble/storage'
+import { storage } from '@extend-chrome/storage'
 
 storage.local.set({ a: 'abc' })
 storage.sync.set({ b: 123 })
@@ -200,7 +202,7 @@ storage.sync.set({ b: 123 })
 Create a bucket or two using [`getBucket`](#api-getBucket):
 
 ```javascript
-import { getBucket } from '@bumble/storage'
+import { getBucket } from '@extend-chrome/storage'
 
 // Buckets are isomorphic, so export and
 // use them throughout your extension
@@ -401,7 +403,7 @@ to use.
 </details>
 
 ```typescript
-import { getBucket } from '@bumble/storage'
+import { getBucket } from '@extend-chrome/storage'
 
 // JavaScript
 export const localBucket = getBucket('bucket1')

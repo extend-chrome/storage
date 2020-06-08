@@ -48,7 +48,7 @@ export function getBucket<
   const storage = getStorageArea(_areaName)
 
   /* --------------- SETUP BUCKET --------------- */
-  const prefix = `bumble/storage__${bucketName}`
+  const prefix = `extend-chrome/storage__${bucketName}`
   const keys = `${prefix}_keys`
   const pfx = (k: keyof T) => {
     return `${prefix}--${k}`

@@ -1,5 +1,5 @@
 export const bucketName = 'bucket1'
-export const prefix = `bumble/storage__${bucketName}`
+export const prefix = `extend-chrome/storage__${bucketName}`
 export const keysName = `${prefix}_keys`
 
 export const pfx = (k: string) => `${prefix}--${k}`

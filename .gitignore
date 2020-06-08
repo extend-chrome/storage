@@ -1,8 +1,9 @@
 .vscode/
-/lib/
-/hooks/
-/jest/
-/types/
+lib/
+hooks/
+jest/
+types/
 node_modules/
 playground/
 TODO
+package-lock.json
