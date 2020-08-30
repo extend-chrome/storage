@@ -29,7 +29,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@bumble/chrome-rxjs": "^0.10.1",
     "chrome-promise": "^3.0.5",
     "rxjs": "^6.5.5"
   },

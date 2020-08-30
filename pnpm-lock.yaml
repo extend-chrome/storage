@@ -1,5 +1,4 @@
 dependencies:
-  '@bumble/chrome-rxjs': 0.10.1
   chrome-promise: 3.0.5
   rxjs: 6.5.5
 devDependencies:
@@ -241,12 +240,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
-  /@bumble/chrome-rxjs/0.10.1:
-    dependencies:
-      rxjs: 6.5.4
-    dev: false
-    resolution:
-      integrity: sha512-S0ZhMfgaY8XDscJp0urbZjPg7ulhkty+jc8tLLyxR8AZn2lrqrUlsQd7mg3gZtiBx8Ng1TnzLF4URgsu2DYANQ==
   /@cnakazawa/watch/1.0.3:
     dependencies:
       exec-sh: 0.3.4
@@ -4060,14 +4053,6 @@ packages:
       node: '>=0.12.0'
     resolution:
       integrity: sha1-A3GrSuC91yDUFm19/aZP96RFpsA=
-  /rxjs/6.5.4:
-    dependencies:
-      tslib: 1.11.1
-    dev: false
-    engines:
-      npm: '>=2.0.0'
-    resolution:
-      integrity: sha512-naMQXcgEo3csAEGvw/NydRA0fuS2nDZJiw1YUWFKU7aPPAPGZEsD4Iimit96qwCieH6y614MCLYwdkrWx7z/7Q==
   /rxjs/6.5.5:
     dependencies:
       tslib: 1.11.1
@@ -5052,7 +5037,6 @@ packages:
     resolution:
       integrity: sha512-92O1HWEjw27sBfgmXiixJWT5hRBp2eobqXicLtPBIDBhYB+1HpwZlXmbW2luivBJHBzki+7VyCLRtAkScbTBQA==
 specifiers:
-  '@bumble/chrome-rxjs': ^0.10.1
   '@rollup/plugin-commonjs': ^12.0.0
   '@rollup/plugin-node-resolve': ^8.0.0
   '@rollup/plugin-typescript': ^4.1.2
