@@ -1,6 +1,6 @@
-# @bumble/storage
+# @extend-chrome/storage
 
-Manage Chrome Extension storage easily with `@bumble/storage`.
+Manage Chrome Extension storage easily with `@extend-chrome/storage`.
 
 This is a wrapper for the Chrome Extension Storage API that adds promises and functional set transactions similar to the React `this.setState` API. Functional set transactions make it easy to use the Chrome Storage API to share and manage state between different contexts in a Chrome Extension.
 
@@ -9,13 +9,13 @@ This is a wrapper for the Chrome Extension Storage API that adds promises and fu
 # Install
 
 ```sh
-npm i @bumble/storage
+npm i @extend-chrome/storage
 ```
 
 # Usage
 
 ```javascript
-import { storage } from '@bumble/storage'
+import { storage } from '@extend-chrome/storage'
 
 storage.set(({ friends = [] }) => {
   return { friends: [...friends, friend] }
@@ -32,7 +32,7 @@ The Chrome Storage API is asynchronous. This means synchronous calls to `get` an
 
 While the Chrome Storage API is async, it uses callbacks. This brings a whole world of difficulty into the developer experience that have been solved with Promises.
 
-`@bumble/storage` solves both of these problems. Every method returns a Promise and both `get` and `set` can take a transaction function that provides current storage values.
+`@extend-chrome/storage` solves both of these problems. Every method returns a Promise and both `get` and `set` can take a transaction function that provides current storage values.
 
 # Here's how it works
 

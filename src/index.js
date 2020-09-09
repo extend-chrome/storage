@@ -1,5 +1,5 @@
 import chromep from 'chrome-promise'
-import { storage as rxStorage } from '@bumble/chrome-rxjs'
+import { storage as rxStorage } from '@extend-chrome/events-rxjs'
 import {
   invalidGetter,
   invalidSetter,

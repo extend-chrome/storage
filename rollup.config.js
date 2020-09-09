@@ -17,7 +17,7 @@ export default [
     ],
     external: [
       'chrome-promise',
-      '@bumble/chrome-rxjs',
+      '@extend-chrome/events-rxjs',
       'rxjs/operators',
     ],
   },
