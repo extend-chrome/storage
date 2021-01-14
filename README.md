@@ -24,10 +24,7 @@
 Manage Chrome Extension storage easily with `@extend-chrome/storage`.
 
 This is a wrapper for the Chrome Extension Storage API that adds
-promises and functional set transactions similar to the React
-`this.setState` API. Functional set transactions make it easy to
-use the Chrome Storage API to share and manage state between
-different contexts in a Chrome Extension.
+virtual storage buckets with extensive TypeScript support and a modern API using promises.
 
 # Table of Contents
 
@@ -101,23 +98,7 @@ storage
 
 # Features <a name = "features"></a>
 
-## Promises and functional setters <a name = "features-async"></a>
-
-The Chrome Storage API is asynchronous. This means synchronous
-calls to `get` and `set` will not reflect pending changes. This
-makes calls to `set` that depend on values held in storage
-difficult.
-
-While the Chrome Storage API is async, it uses callbacks. This
-brings a whole world of difficulty into the developer experience
-that have been solved with Promises.
-
-`@extend-chrome/storage` solves both of these problems. Every method
-returns a Promise and both `get` and `set` can take a function
-that provides current storage values, similar to React's
-`this.setState`.
-
-## Extensive TypeScript support <a name = "features-typescript"></a>
+## Virtual typed storage buckets <a name = "features-typescript"></a>
 
 This library allows you to create a storage area and define the
 type of data that area will manage.
@@ -140,6 +121,22 @@ store.set(({ b = 0 }) => ({ b: b + 500 }))
 store.set({ c: true }) // ts error
 store.set(({ a }) => ({ d: 'invalid' })) // ts error
 ```
+
+## Promises and functional setters <a name = "features-async"></a>
+
+The Chrome Storage API is asynchronous. This means synchronous
+calls to `get` and `set` will not reflect pending changes. This
+makes calls to `set` that depend on values held in storage
+difficult.
+
+While the Chrome Storage API is async, it uses callbacks. This
+brings a whole world of difficulty into the developer experience
+that have been solved with Promises.
+
+`@extend-chrome/storage` solves both of these problems. Every method
+returns a Promise and both `get` and `set` can take a function
+that provides current storage values, similar to React's
+`this.setState`.
 
 ## Composed set operations <a name = "features-composed"></a>
 
