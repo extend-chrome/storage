@@ -27,6 +27,12 @@ export default [
     external,
     plugins,
   },
+  {
+    input: 'src/bucket.ts',
+    output: outputs('lib/bucket'),
+    external,
+    plugins,
+  },
   // {
   //   input: 'src/react-hooks.ts',
   //   output: outputs('hooks/react-hooks'),
