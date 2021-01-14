@@ -19,8 +19,6 @@
 
 ---
 
-> Previously `@bumble/storage`, we've migrated to a new organization with a better name!
-
 Manage Chrome Extension storage easily with `@extend-chrome/storage`.
 
 This is a wrapper for the Chrome Extension Storage API that adds
