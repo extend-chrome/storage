@@ -7,8 +7,8 @@
 
 <div align="center">
 
-[![npm (scoped)](https://img.shields.io/npm/v/@extend-chrome/storage.svg)](http://bit.ly/2KA6cNp)
-[![GitHub last commit](https://img.shields.io/github/last-commit/extend-chrome/storage.svg)](http://bit.ly/35jbrc5)
+[![npm (scoped)](https://img.shields.io/npm/v/@extend-chrome/storage.svg)](https://www.npmjs.com/package/@extend-chrome/storage)
+[![GitHub last commit](https://img.shields.io/github/last-commit/extend-chrome/storage.svg)](https://github.com/extend-chrome/storage)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 [![TypeScript Declarations Included](https://img.shields.io/badge/types-TypeScript-informational)](#typescript)
 
