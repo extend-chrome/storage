@@ -22,7 +22,7 @@
 Manage Chrome Extension storage easily with `@extend-chrome/storage`.
 
 This is a wrapper for the Chrome Extension Storage API that adds
-virtual storage buckets with extensive TypeScript support and a modern API using promises.
+great TypeScript support using virtual storage buckets with a modern Promise-based API.
 
 # Table of Contents
 
