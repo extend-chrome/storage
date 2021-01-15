@@ -2,15 +2,15 @@ import chromep from 'chrome-promise'
 import { chromepApi } from 'chrome-promise/chrome-promise'
 import { concat, from, fromEventPattern, Observable } from 'rxjs'
 import { filter, map, mergeMap } from 'rxjs/operators'
-import { isKeyof, isNonNull } from './guards'
+import { isKeyof, isNonNull } from '../guards'
 import {
   AreaName,
   AtLeastOne,
   Bucket,
   Changes,
   Getter,
-} from './types'
-import { invalidSetterReturn } from './validate'
+} from '../types'
+import { invalidSetterReturn } from '../validate'
 
 export const getStorageArea = (
   area: AreaName,

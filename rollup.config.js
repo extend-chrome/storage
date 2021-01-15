@@ -28,8 +28,8 @@ export default [
     plugins,
   },
   {
-    input: 'src/bucket.ts',
-    output: outputs('lib/bucket'),
+    input: 'src/bucket/index.ts',
+    output: outputs('bucket/index'),
     external,
     plugins,
   },

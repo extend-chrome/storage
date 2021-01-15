@@ -9,17 +9,20 @@
   "module": "lib/index-esm.js",
   "types": "types/index.d.ts",
   "files": [
+    "bucket",
+    "jest",
     "lib",
-    "types",
-    "jest"
+    "types"
   ],
   "scripts": {
-    "prebuild": "rm -rf lib types hooks jest",
+    "prebuild": "rm -rf lib types hooks jest bucket",
     "build": "run-p build:pro build:types build:copy",
     "build:dev": "rollup -c --environment NODE_ENV:development",
     "build:pro": "rollup -c --environment NODE_ENV:production",
     "build:types": "tsc -p tsconfig.d.json",
-    "build:copy": "copyfiles -f src/jest/package.json jest",
+    "build:copy": "run-p build:copy:*",
+    "build:copy:jest": "copyfiles -f src/jest/package.json jest",
+    "build:copy:bucket": "copyfiles -f src/bucket/package.json bucket",
     "prepublishOnly": "npm run build",
     "postpublish": "rm -rf node_modules package-lock.json && pnpm i",
     "start": "run-p start:*",
@@ -55,6 +58,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^2.0.5",
     "rollup": "^2.10.5",
+    "rollup-plugin-copy2": "^0.2.0",
     "ts-jest": "^26.0.0",
     "tslib": "^2.0.0",
     "typescript": "^3.9.3"
