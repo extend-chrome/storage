@@ -1,5 +1,5 @@
 {
   "main": "./index-cjs.js",
   "module": "./index-esm.js",
-  "types": "../types/bucket.d.ts"
+  "types": "../types/bucket"
 }
