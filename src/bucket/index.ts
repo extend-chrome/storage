@@ -12,6 +12,8 @@ import {
 } from '../types'
 import { invalidSetterReturn } from '../validate'
 
+export { Bucket }
+
 export const getStorageArea = (
   area: AreaName,
 ): chromepApi.storage.StorageArea => {
