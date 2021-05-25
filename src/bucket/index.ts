@@ -1,13 +1,13 @@
 import chromep from 'chrome-promise'
 import { chromepApi } from 'chrome-promise/chrome-promise'
-import { concat, from, fromEventPattern, Observable } from 'rxjs'
+import { concat, from, fromEventPattern } from 'rxjs'
 import { filter, map, mergeMap } from 'rxjs/operators'
-import { isKeyof, isNonNull } from '../guards'
+import { isNonNull } from '../guards'
 import {
   AreaName,
-  AtLeastOne,
   Bucket,
   Changes,
+  CoreGetter,
   Getter,
 } from '../types'
 import { invalidSetterReturn } from '../validate'
@@ -39,11 +39,10 @@ export const getStorageArea = (
  * @param {string} [areaName = 'local'] The name of the storage area to use.
  * @returns {Bucket} Returns a bucket.
  */
-export function getBucket<
-  T extends {
-    [prop: string]: any
-  }
->(bucketName: string, areaName?: AreaName): Bucket<T> {
+export function getBucket<T extends Record<string, any>>(
+  bucketName: string,
+  areaName?: AreaName,
+): Bucket<T> {
   /* ------------- GET STORAGE AREA ------------- */
   if (!areaName) areaName = 'local' as const
   const _areaName: AreaName = areaName
@@ -59,11 +58,9 @@ export function getBucket<
     return pk.replace(`${prefix}--`, '')
   }
 
-  const xfmKeys = (xfm: (x: string) => string) => (obj: {
-    [key: string]: any
-  }): {
-    [key: string]: any
-  } => {
+  const xfmKeys = (xfm: (x: string) => string) => (
+    obj: Record<string, any>,
+  ): Record<string, any> => {
     return Object.keys(obj).reduce(
       (r, k) => ({
         ...r,
@@ -97,78 +94,76 @@ export function getBucket<
   /*                  STORAGE.GET                 */
   /* -------------------------------------------- */
 
-  type PartialStore = AtLeastOne<T>
-  const coreGet = async (x?: Getter<PartialStore>) => {
+  async function coreGet(): Promise<T>
+  async function coreGet(x: CoreGetter<T>): Promise<Partial<T>>
+  async function coreGet(x?: CoreGetter<T>) {
     // Flush pending storage.set ops before
-    if (promise) {
-      return promise
-    }
+    if (promise) return promise
 
     if (typeof x === 'undefined' || x === null) {
       // get all
       const keys = await getKeys()
-      const getter = pfxAry(keys)
-
-      if (!getter.length) {
+      if (!keys.length) {
         return {} as T
       } else {
+        const getter = pfxAry(keys)
         const result = await storage.get(getter)
 
         return unpfxObj(result) as T
       }
-    } else if (isKeyof<T>(x)) {
+    } else if (typeof x === 'string') {
       // string getter, get one
       const getter = pfx(x)
       const result = await storage.get(getter)
 
-      return unpfxObj(result) as PartialStore
+      return unpfxObj(result) as Partial<T>
     } else if (Array.isArray(x)) {
       // string array getter, get each
       const getter = pfxAry(x)
       const result = await storage.get(getter)
 
-      return unpfxObj(result) as PartialStore
+      return unpfxObj(result) as Partial<T>
     } else {
       // object getter, get each key
       const getter = pfxObj(x)
       const result = await storage.get(getter)
 
-      return unpfxObj(result) as PartialStore
+      return unpfxObj(result) as Partial<T>
     }
   }
 
-  function get(getter?: Getter<PartialStore> | null) {
+  function get(): Promise<T>
+  function get(getter: null): Promise<T>
+  function get(getter: Getter<Partial<T>>): Promise<Partial<T>>
+  function get(getter?: Getter<Partial<T>> | null) {
     if (getter === null || getter === undefined) {
       return coreGet() as Promise<T>
     }
 
-    switch (typeof getter) {
-      case 'string':
-      case 'object':
-        return coreGet(getter) as Promise<PartialStore>
-      case 'function':
-        return coreGet().then(getter) as Promise<
-          ReturnType<typeof getter>
-        >
-      default:
-        throw new TypeError(
-          `Unexpected argument type: ${typeof getter}`,
-        )
-    }
+    if (typeof getter === 'string' || typeof getter === 'object')
+      return coreGet(getter) as Promise<Partial<T>>
+    if (typeof getter === 'function')
+      return coreGet().then(getter)
+
+    throw new TypeError(
+      `Unexpected argument type: ${typeof getter}`,
+    )
   }
 
   /* -------------------------------------------- */
   /*                  STORAGE.SET                 */
   /* -------------------------------------------- */
 
-  const _createNextValue = (x: PartialStore): PartialStore => x
+  const _createNextValue = (x: T): T => x
   let createNextValue = _createNextValue
 
-  type SetterFn = (
-    prev: PartialStore,
-  ) => AtLeastOne<PartialStore>
-  const set = (arg: SetterFn | T): Promise<PartialStore> =>
-    new Promise((resolve, reject) => {
+  type SetterFn = (prev: Partial<T>) => Partial<T>
+  function set(setter: Partial<T>): Promise<T>
+  function set(setter: (prev: T) => Partial<T>): Promise<T>
+  function set(
+    arg: Partial<T> | ((prev: T) => Partial<T>),
+  ): Promise<T> {
+    return new Promise((resolve, reject) => {
       let setter: SetterFn
       if (typeof arg === 'function') {
         setter = (prev) => {
@@ -194,7 +189,10 @@ export function getBucket<
       }
 
       const composeFn = createNextValue
-      createNextValue = (prev) => setter(composeFn(prev))
+      createNextValue = (prev) => ({
+        ...prev,
+        ...setter(composeFn(prev)),
+      })
 
       if (promise === null) {
         // Update storage starting with current values
@@ -219,6 +217,7 @@ export function getBucket<
       // All calls to set should call resolve or reject
       promise.then(resolve).catch(reject)
     })
+  }
 
   const remove = (arg: string | string[]) => {
     const query = ([] as string[]).concat(arg)
@@ -241,7 +240,7 @@ export function getBucket<
   }
 
   const nativeChange$ = fromEventPattern<
-    [{ [key: string]: chrome.storage.StorageChange }, string]
+    [{ [key in keyof T]: chrome.storage.StorageChange }, string]
   >(
     (handler) => {
       chrome.storage.onChanged.addListener(handler)
@@ -258,7 +257,7 @@ export function getBucket<
         Object.keys(changes).some((k) => k.startsWith(prefix))
       )
     }),
-    map(([changes]) => {
+    map(([changes]): Changes<T> | undefined => {
       const bucketChanges = Object.keys(changes).filter(
         (k) => k.startsWith(prefix) && k !== keys,
       )
@@ -271,7 +270,7 @@ export function getBucket<
         : undefined
     }),
     filter(isNonNull),
-  ) as Observable<Changes<PartialStore>>
+  )
 
   return {
     set,

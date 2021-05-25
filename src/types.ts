@@ -2,21 +2,21 @@ import { Observable } from 'rxjs'
 
 export type AreaName = 'local' | 'sync' | 'managed'
 
-export type AtLeastOne<
-  T,
-  U = { [K in keyof T]: Pick<T, K> }
-> = Partial<T> & U[keyof U]
+export type CoreGetter<T> =
+  | Extract<keyof T, string>
+  | Extract<keyof T, string>[]
+  | Partial<T>
 
 export type Getter<T> =
-  | keyof T
-  | (keyof T)[]
+  | Extract<keyof T, string>
+  | Extract<keyof T, string>[]
   | ((values: T) => any)
-  | AtLeastOne<T>
+  | Partial<T>
 
 export type Changes<T> = {
   [K in keyof T]?: {
-    oldValue: T[K]
-    newValue: T[K]
+    oldValue?: T[K]
+    newValue?: T[K]
   }
 }
 
@@ -26,12 +26,16 @@ export interface Bucket<T extends object> {
    *
    * A getter function receives a StorageValues object and can return anything.
    */
-  get(getter?: undefined): Promise<T>
+  get(): Promise<T>
   get(getter: null): Promise<T>
-  get(getter: keyof T): Promise<Partial<T>>
-  get(getter: string[]): Promise<Partial<T>>
+  get<P extends Extract<keyof T, string>>(
+    getter: P,
+  ): Promise<{ [key in P]: T[P] }>
+  get<P extends Extract<keyof T, string>[]>(
+    getter: P,
+  ): Promise<Partial<T>>
   get<K>(getter: (values: T) => K): Promise<K>
-  get<K extends AtLeastOne<T>>(getter: K): Promise<K>
+  get<K extends Partial<T>>(getter: K): Promise<K>
   /**
    * Set a value or values in the storage area using an object with keys and default values, or a setter function.
    *
@@ -39,8 +43,8 @@ export interface Bucket<T extends object> {
    *
    * Synchronous calls to set will be composed into a single setter function for performance and reliability.
    */
-  set(setter: AtLeastOne<T>): Promise<T>
-  set<K>(setter: (prev: T) => AtLeastOne<T>): Promise<T>
+  set(setter: Partial<T>): Promise<T>
+  set(setter: (prev: T) => Partial<T>): Promise<T>
   /**
    * Set a value or values in the storage area using an async setter function.
    *
