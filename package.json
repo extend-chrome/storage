@@ -15,8 +15,8 @@
     "types"
   ],
   "scripts": {
-    "prebuild": "rm -rf lib types hooks jest bucket",
-    "build": "run-p build:pro build:types build:copy",
+    "build:pre": "rm -rf lib types hooks jest bucket",
+    "build": "run-p build:pre build:pro build:types build:copy",
     "build:copy": "run-p build:copy:*",
     "build:copy:bucket": "copyfiles -f src/bucket/package.json bucket",
     "build:copy:jest": "copyfiles -f src/jest/package.json jest",
@@ -28,8 +28,9 @@
     "start": "run-p start:*",
     "start:rollup": "npm run build:dev -- -w",
     "start:tsc": "tsc -b tsconfig.d.json -w",
-    "pretest": "npm run build",
-    "test": "jest"
+    "test:tsc": "tsc --noEmit",
+    "test:jest": "jest",
+    "test": "run-s build test:*"
   },
   "dependencies": {
     "chrome-promise": "^3.0.5"
@@ -39,7 +40,7 @@
     "@rollup/plugin-node-resolve": "^8.0.0",
     "@rollup/plugin-typescript": "^4.1.2",
     "@sucrase/jest-plugin": "^2.0.0",
-    "@types/chrome": "0.0.113",
+    "@types/chrome": "^0.0.142",
     "@types/jest": "^25.2.3",
     "@types/jest-in-case": "^1.0.2",
     "@types/node": "^14.0.4",
