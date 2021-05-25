@@ -3,12 +3,6 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
-  globals: {
-    'ts-jest': {
-      packageJson: 'package.json',
-      tsConfig: 'tsconfig.json',
-    },
-  },
   setupFilesAfterEnv: ['./tests/jest.setup.ts'],
   transform: {
     '.(js|jsx)': '@sucrase/jest-plugin',

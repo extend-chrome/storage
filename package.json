@@ -17,12 +17,12 @@
   "scripts": {
     "prebuild": "rm -rf lib types hooks jest bucket",
     "build": "run-p build:pro build:types build:copy",
+    "build:copy": "run-p build:copy:*",
+    "build:copy:bucket": "copyfiles -f src/bucket/package.json bucket",
+    "build:copy:jest": "copyfiles -f src/jest/package.json jest",
     "build:dev": "rollup -c --environment NODE_ENV:development",
     "build:pro": "rollup -c --environment NODE_ENV:production",
     "build:types": "tsc -p tsconfig.d.json",
-    "build:copy": "run-p build:copy:*",
-    "build:copy:jest": "copyfiles -f src/jest/package.json jest",
-    "build:copy:bucket": "copyfiles -f src/bucket/package.json bucket",
     "prepublishOnly": "npm run build",
     "postpublish": "rm -rf node_modules package-lock.json && pnpm i",
     "start": "run-p start:*",
@@ -32,8 +32,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "chrome-promise": "^3.0.5",
-    "rxjs": "^6.5.5"
+    "chrome-promise": "^3.0.5"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^12.0.0",
@@ -53,17 +52,18 @@
     "delay": "^4.3.0",
     "eslint": "^7.0.0",
     "eslint-plugin-jest": "^23.13.1",
-    "jest": "^26.0.1",
+    "jest": "26.6.3",
     "jest-in-case": "^1.0.2",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.0.5",
     "rollup": "^2.10.5",
     "rollup-plugin-copy2": "^0.2.0",
-    "ts-jest": "^26.0.0",
-    "tslib": "^2.0.0",
-    "typescript": "^3.9.3"
+    "rxjs": "^7.1.0",
+    "ts-jest": "^26.5.6",
+    "tslib": "^2.2.0",
+    "typescript": "^4.2.4"
   },
   "peerDependencies": {
-    "rxjs": "^6.5.5"
+    "rxjs": "^6.5.5 || ^7.1.0"
   }
 }
