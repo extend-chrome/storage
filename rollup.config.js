@@ -2,16 +2,9 @@
 
 import typescript from '@rollup/plugin-typescript'
 
-const {
-  dependencies: deps,
-  peerDependencies: peerDeps,
-} = require('./package.json')
+const { dependencies: deps } = require('./package.json')
 
-const external = [
-  ...Object.keys(deps),
-  ...Object.keys(peerDeps),
-  'rxjs/operators',
-]
+const external = [...Object.keys(deps), 'rxjs/operators']
 
 const plugins = [
   typescript({
