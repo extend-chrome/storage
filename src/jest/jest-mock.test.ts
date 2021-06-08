@@ -1,6 +1,7 @@
-import { Subject } from 'rxjs'
 import { getBucket, storage } from './jest-mock'
+
 import { MockBucket } from './jest-mock'
+import { Subject } from 'rxjs'
 
 jest.mock('../index.ts')
 
@@ -17,6 +18,7 @@ test('storage.local is mocked', async () => {
     update: expect.any(MockInstance),
     remove: expect.any(MockInstance),
     clear: expect.any(MockInstance),
+    getKeys: expect.any(MockInstance),
     changeStream: expect.any(Subject),
     valueStream: expect.any(Subject),
   })
@@ -42,12 +44,13 @@ test('getBucket returns MockBucket', async () => {
     update: expect.any(MockInstance),
     remove: expect.any(MockInstance),
     clear: expect.any(MockInstance),
+    getKeys: expect.any(MockInstance),
     changeStream: expect.any(Subject),
     valueStream: expect.any(Subject),
   })
 
   const defaultValue = { a: 'a', b: 1 }
-  
+
   mockStorageArea.get.mockImplementation(async () => {
     return defaultValue
   })

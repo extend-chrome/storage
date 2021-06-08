@@ -1,8 +1,3 @@
-import chromep from 'chrome-promise'
-import { chromepApi } from 'chrome-promise/chrome-promise'
-import { concat, from, fromEventPattern } from 'rxjs'
-import { filter, map, mergeMap } from 'rxjs/operators'
-import { isNonNull } from '../guards'
 import {
   AreaName,
   Bucket,
@@ -10,7 +5,13 @@ import {
   CoreGetter,
   Getter,
 } from '../types'
+import { concat, from, fromEventPattern } from 'rxjs'
+import { filter, map, mergeMap } from 'rxjs/operators'
+
+import chromep from 'chrome-promise'
+import { chromepApi } from 'chrome-promise/chrome-promise'
 import { invalidSetterReturn } from '../validate'
+import { isNonNull } from '../guards'
 
 export { Bucket }
 
@@ -288,6 +289,10 @@ export function getBucket<T extends Record<string, any>>(
       const store = await get()
       const result = await updater(store)
       return set(result)
+    },
+
+    async getKeys() {
+      return getKeys()
     },
 
     get changeStream() {

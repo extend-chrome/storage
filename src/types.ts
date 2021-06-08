@@ -65,6 +65,8 @@ export interface Bucket<T extends object> {
   remove: (query: string | string[]) => Promise<void>
   /** Clear the storage area */
   clear: () => Promise<void>
+  /** Get the keys (or property names) of the storage area */
+  getKeys: () => Promise<string[]>
   /** Emits an object with changed storage keys and StorageChange values  */
   readonly changeStream: Observable<Changes<T>>
   /** Emits the current storage values immediately and when changeStream emits */
