@@ -1,6 +1,7 @@
+import { Bucket, Changes } from '..'
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Subject } from 'rxjs'
-import { Bucket, Changes } from '..'
 
 /**
  * This module is a pre-mocked version of storage for use with Jest.
@@ -37,6 +38,7 @@ export const getBucket = <T extends object>(
   update: jest.fn(),
   remove: jest.fn(),
   clear: jest.fn(),
+  getKeys: jest.fn(),
   changeStream: new Subject<Changes<T>>(),
   valueStream: new Subject<T>(),
 })

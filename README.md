@@ -33,6 +33,7 @@ This is a wrapper for the Chrome Extension Storage API that adds
 - [API](#api)
   - [interface Bucket](#api-bucket)
     - [bucket.get()](#api-bucket-get)
+    - [bucket.getKeys()](#api-bucket-getKeys)
     - [bucket.set()](#api-bucket-set)
     - [bucket.remove()](#api-bucket-remove)
     - [bucket.clear()](#api-bucket-clear)
@@ -257,6 +258,19 @@ getter.
 bucket.get('a') // resolves to object as key/value pair
 bucket.get({ a: 123 }) // same, but 123 is default value
 bucket.get(({ a }) => a) // resolves to value of "a"
+```
+
+## async function `bucket.getKeys` <a name = "api-bucket-getKeys"></a>
+
+Takes an optional getter. Resolves to an array of strings that represents the keys of the values in the storage area bucket.
+
+```typescript
+function getKeys() => Promise<string[]>
+```
+
+```typescript
+bucket.set({ a: 123 })
+bucket.getKeys() // Resolves to ['a']
 ```
 
 ## async function `bucket.set` <a name = "api-bucket-set"></a>
