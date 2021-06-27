@@ -262,7 +262,7 @@ bucket.get(({ a }) => a) // resolves to value of "a"
 
 ## async function `bucket.getKeys` <a name = "api-bucket-getKeys"></a>
 
-Takes an optional getter. Resolves to an array of strings that represents the keys of the values in the storage area bucket.
+Takes no arguments. Resolves to an array of strings that represents the keys of the values in the storage area bucket.
 
 ```typescript
 function getKeys() => Promise<string[]>
